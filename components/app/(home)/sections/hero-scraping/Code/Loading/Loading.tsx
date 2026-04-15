@@ -10,7 +10,7 @@ export default function HeroScrapingCodeLoading({
 }: {
   finished: boolean;
 }) {
-  const [scrapingText, setScrapingText] = useState("Scraping...");
+  const [scrapingText, setScrapingText] = useState("Scanner...");
 
   useEffect(() => {
     if (finished) return;
@@ -23,12 +23,12 @@ export default function HeroScrapingCodeLoading({
 
       if (tick % 3 !== 0) {
         setScrapingText(
-          encryptText("Scraping", 0, {
+          encryptText("Scanner", 0, {
             randomizeChance: 0.6 + Math.random() * 0.3,
           }) + "...",
         );
       } else {
-        setScrapingText("Scraping...");
+        setScrapingText("Scanner...");
       }
 
       const interval = 80;
@@ -54,7 +54,7 @@ export default function HeroScrapingCodeLoading({
             exit={{ opacity: 0, x: 10 }}
             initial={{ opacity: 0, x: -10 }}
           >
-            {finished ? "Scrape Completed" : scrapingText}
+            {finished ? "Scanning fuldført" : scrapingText}
           </motion.div>
         </AnimatePresence>
       </AnimatedWidth>

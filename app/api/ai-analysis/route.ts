@@ -29,27 +29,27 @@ async function generateGroqInsights(url: string, htmlContent: string, currentChe
         messages: [
           {
             role: 'system',
-            content: 'You are an AI readiness expert analyzing websites for ANY industry (e-commerce, news, education, healthcare, business, etc). Provide industry-appropriate recommendations. Be specific with examples relevant to the site type.'
+            content: 'Du er en ekspert i AI-parathed, der analyserer hjemmesider i ALLE brancher (e-handel, nyheder, uddannelse, sundhed, erhverv osv.). KRITISK KRAV: ALT output skal være på dansk — alle label, details, recommendation og actionItems MÅ IKKE indeholde engelsk tekst. Brug danske tegn (æ, ø, å). Tekniske udtryk som HTML, schema, robots.txt må gerne bevares på engelsk, men beskrivelser, anbefalinger og handlingspunkter skal formuleres på dansk. Vær konkret med eksempler, der passer til sidetypen.'
           },
           {
             role: 'user',
-            content: `Analyze this webpage for AI readiness. This could be ANY type of site - adapt your analysis accordingly.
+            content: `Analysér denne hjemmeside for AI-parathed. Det kan være ALLE typer af sider — tilpas din analyse. SVAR UDELUKKENDE PÅ DANSK.
 
 URL: ${url}
-Page-Level Scores: ${JSON.stringify(currentChecks.filter(c => ['readability', 'heading-structure', 'meta-tags'].includes(c.id)).map(c => c.label + ': ' + c.score))}
+Side-scores: ${JSON.stringify(currentChecks.filter(c => ['readability', 'heading-structure', 'meta-tags'].includes(c.id)).map(c => c.label + ': ' + c.score))}
 
-Analyze these universal AI readiness factors:
-1. Content Quality for AI (content-quality) - Is the content clear, factual, and valuable for AI training?
-2. Information Architecture (info-architecture) - How well organized and categorized is the information?
-3. Semantic Structure (semantic-structure) - Does the HTML properly describe content meaning?
-4. AI Discovery Value (ai-discovery) - Can AI systems easily understand what this page/site offers?
-5. Knowledge Extraction (knowledge-extraction) - Can facts, entities, and relationships be extracted?
-6. Context & Completeness (context-completeness) - Is there enough context for AI to understand topics?
-7. Content Uniqueness (content-uniqueness) - Is this original content vs duplicated/thin content?
-8. Machine Interpretability (machine-interpretability) - How easily can AI parse and understand this?
+Analysér disse universelle AI-parathedsfaktorer (brug disse danske labels):
+1. Indholdskvalitet til AI (content-quality) — Er indholdet klart, faktuelt og værdifuldt for AI-træning?
+2. Informationsarkitektur (info-architecture) — Hvor godt organiseret og kategoriseret er informationen?
+3. Semantisk struktur (semantic-structure) — Beskriver HTML'en korrekt indholdets betydning?
+4. AI-opdagelsesværdi (ai-discovery) — Kan AI-systemer let forstå, hvad denne side tilbyder?
+5. Vidensudtræk (knowledge-extraction) — Kan fakta, entiteter og relationer udtrækkes?
+6. Kontekst og fuldstændighed (context-completeness) — Er der nok kontekst til, at AI kan forstå emnerne?
+7. Indholdets unikhed (content-uniqueness) — Er dette originalt indhold eller tyndt/dubleret?
+8. Maskinfortolkbarhed (machine-interpretability) — Hvor let kan AI parse og forstå dette?
 
-Adapt your analysis to the site type (e-commerce should focus on product data, news on article structure, etc).
-Return JSON with insights array containing {id, label, score(0-100), status(pass/warning/fail), details, recommendation, actionItems(array of 5 specific actions)} for each area.`
+Tilpas analysen til sidetypen (e-handel fokuserer på produktdata, nyheder på artikelstruktur osv.).
+Returnér JSON med et insights-array, der for hvert område indeholder {id, label, score(0-100), status(pass/warning/fail), details, recommendation, actionItems(array med 5 konkrete handlinger)}. ALLE tekstfelter SKAL være på dansk.`
           }
         ],
         temperature: 0.7,
@@ -85,128 +85,128 @@ function generateMockInsights(url: string = 'https://example.com') {
     insights: [
       {
         id: 'content-quality',
-        label: 'Content Quality for AI',
+        label: 'Indholdskvalitet til AI',
         score: 75,
         status: 'warning',
-        details: 'Content is generally well-structured with clear paragraphs and headings. Some sections could benefit from better semantic markup.',
-        recommendation: 'Great structure! Your headings are descriptive and paragraphs are well-organized.',
+        details: 'Indholdet er generelt velstruktureret med klare afsnit og overskrifter. Nogle sektioner kunne få gavn af bedre semantisk opmærkning.',
+        recommendation: 'Flot struktur! Dine overskrifter er beskrivende, og dine afsnit er godt organiseret.',
         actionItems: [
-          'Example of good heading: "How to Configure API Authentication" instead of "Setup"',
-          'Keep paragraphs under 150 words (yours average 120 - excellent!)',
-          'Add a TL;DR section like: <section class="tldr">Key points...</section>',
-          'Start each section with a clear topic sentence that summarizes the content'
+          'Eksempel på god overskrift: "Sådan konfigurerer du API-autentificering" i stedet for "Opsætning"',
+          'Hold afsnit under 150 ord (dine er gennemsnitligt 120 — fremragende!)',
+          'Tilføj en TL;DR-sektion, fx: <section class="tldr">Hovedpunkter…</section>',
+          'Start hver sektion med en klar emnesætning, der opsummerer indholdet'
         ]
       },
       {
         id: 'data-structure',
-        label: 'Data Structure & Schema',
+        label: 'Datastruktur og schema',
         score: 60,
         status: 'warning',
-        details: 'Basic structured data present but could be enhanced with more detailed schema markup.',
-        recommendation: 'Add JSON-LD structured data to help AI understand your content better.',
+        details: 'Der findes grundlæggende struktureret data, men den kan forbedres med mere detaljeret schema-opmærkning.',
+        recommendation: 'Tilføj JSON-LD struktureret data, så AI bedre kan forstå dit indhold.',
         actionItems: [
-          `Add this to your <head>: <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Your Site","url":"${url}"}</script>`,
-          'For articles, use: {"@type":"Article","headline":"Your Title","author":{"@type":"Person","name":"Author Name"}}',
-          'For your company info: {"@type":"Organization","name":"Company","logo":"logo.png","contactPoint":{"@type":"ContactPoint","telephone":"+1-xxx"}}',
-          'For FAQs: {"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Q?","acceptedAnswer":{"@type":"Answer","text":"A"}}]}',
-          'For products: {"@type":"Product","name":"Product Name","offers":{"@type":"Offer","price":"99.99","priceCurrency":"USD"}}'
+          `Tilføj til dit <head>: <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Din side","url":"${url}"}</script>`,
+          'Til artikler: {"@type":"Article","headline":"Din titel","author":{"@type":"Person","name":"Forfatternavn"}}',
+          'Til virksomhedsinfo: {"@type":"Organization","name":"Virksomhed","logo":"logo.png","contactPoint":{"@type":"ContactPoint","telephone":"+45-xxxxxxxx"}}',
+          'Til FAQ: {"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Spørgsmål?","acceptedAnswer":{"@type":"Answer","text":"Svar"}}]}',
+          'Til produkter: {"@type":"Product","name":"Produktnavn","offers":{"@type":"Offer","price":"99.99","priceCurrency":"DKK"}}'
         ]
       },
       {
         id: 'crawlability',
-        label: 'Crawlability Score',
+        label: 'Crawlbarhed',
         score: 85,
         status: 'pass',
-        details: 'Site structure is logical and easy to navigate. Good use of internal linking and clear URL structure.',
-        recommendation: 'Excellent crawlability! Your site structure is clear and well-organized.',
+        details: 'Sidestrukturen er logisk og let at navigere. God brug af intern linking og klar URL-struktur.',
+        recommendation: 'Fremragende crawlbarhed! Din sidestruktur er klar og velorganiseret.',
         actionItems: [
-          'Your URL structure is clean: /docs/getting-started - keep this pattern!',
-          'Add breadcrumbs like: Home > Docs > Getting Started with this markup: <nav aria-label="breadcrumb"><ol itemscope itemtype="https://schema.org/BreadcrumbList">...</ol></nav>',
-          'Your internal linking is strong - maintain descriptive anchor text like "Learn about authentication" instead of "click here"',
-          'Site depth is good - most pages are within 2-3 clicks from homepage'
+          'Din URL-struktur er ren: /docs/kom-i-gang — bevar dette mønster!',
+          'Tilføj brødkrummer som: Forside > Dokumenter > Kom i gang med opmærkningen: <nav aria-label="breadcrumb"><ol itemscope itemtype="https://schema.org/BreadcrumbList">…</ol></nav>',
+          'Din interne linking er stærk — brug beskrivende ankertekst som "Læs om autentificering" i stedet for "klik her"',
+          'Sidens dybde er god — de fleste sider er 2–3 klik fra forsiden'
         ]
       },
       {
         id: 'training-value',
-        label: 'AI Training Value',
+        label: 'Værdi for AI-træning',
         score: 70,
         status: 'warning',
-        details: 'Content provides good informational value but lacks depth in some areas.',
-        recommendation: 'Good informational value. Add more examples to make it even better for AI training.',
+        details: 'Indholdet har god informationsværdi, men mangler dybde i nogle områder.',
+        recommendation: 'God informationsværdi. Tilføj flere eksempler for at gøre det endnu bedre til AI-træning.',
         actionItems: [
-          'Add a real example: "For instance, when implementing auth, you might encounter error 401..."',
-          'Include code snippets: ```js\nconst auth = await authenticate(user);\n// Handle response...\n```',
-          'Create comparison tables: <table><tr><th>Method</th><th>Pros</th><th>Cons</th></tr>...</table>',
-          'Add "Common Pitfalls" sections with specific scenarios',
-          'Link to authoritative sources: "According to [MDN Web Docs](https://developer.mozilla.org)..."'
+          'Tilføj et konkret eksempel: "Fx når du implementerer autentificering, kan du støde på fejl 401…"',
+          'Inkludér kodeeksempler: ```js\nconst auth = await authenticate(user);\n// Håndtér svar…\n```',
+          'Lav sammenligningstabeller: <table><tr><th>Metode</th><th>Fordele</th><th>Ulemper</th></tr>…</table>',
+          'Tilføj "Typiske faldgruber"-sektioner med konkrete scenarier',
+          'Link til autoritative kilder: "Ifølge [MDN Web Docs](https://developer.mozilla.org)…"'
         ]
       },
       {
         id: 'knowledge-graph',
-        label: 'Knowledge Graph Readiness',
+        label: 'Knowledge graph-parathed',
         score: 55,
         status: 'warning',
-        details: 'Entities are identifiable but relationships between them are not well-defined.',
-        recommendation: 'Add explicit relationships between your content entities.',
+        details: 'Entiteter kan identificeres, men relationerne mellem dem er ikke veldefinerede.',
+        recommendation: 'Tilføj eksplicitte relationer mellem dine indholdsentiteter.',
         actionItems: [
-          'Link related pages: <link rel="related" href="/docs/auth"> or use link[itemprop="relatedLink"]',
-          'Define relationships in JSON-LD: "mentions": [{"@type": "Thing", "name": "API", "sameAs": "https://en.wikipedia.org/wiki/API"}]',
-          'Create topic hubs: Main authentication page linking to OAuth, JWT, Session subtopics',
-          'Use semantic HTML: <article itemscope itemtype="https://schema.org/TechArticle">',
-          'Connect authors: <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="name">John Doe</span></span>'
+          'Link relaterede sider: <link rel="related" href="/docs/auth"> eller brug link[itemprop="relatedLink"]',
+          'Definér relationer i JSON-LD: "mentions": [{"@type": "Thing", "name": "API", "sameAs": "https://da.wikipedia.org/wiki/API"}]',
+          'Lav emnehubs: Hovedside om autentificering, der linker til OAuth, JWT og sessioner som underemner',
+          'Brug semantisk HTML: <article itemscope itemtype="https://schema.org/TechArticle">',
+          'Knyt forfattere: <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="name">Jens Hansen</span></span>'
         ]
       },
       {
         id: 'entity-recognition',
-        label: 'Entity Recognition',
+        label: 'Entitetsgenkendelse',
         score: 80,
         status: 'pass',
-        details: 'Clear identification of main entities, brands, and topics throughout the content.',
-        recommendation: 'Good entity identification! Enhance it with proper markup.',
+        details: 'Klar identifikation af hovedentiteter, brands og emner gennem indholdet.',
+        recommendation: 'God entitetsidentifikation! Styrk den med korrekt opmærkning.',
         actionItems: [
-          'For people mentions: <span itemscope itemtype="https://schema.org/Person"><span itemprop="name">CEO Jane Smith</span></span>',
-          'For company mentions: <span itemscope itemtype="https://schema.org/Organization"><span itemprop="name">Vercel Inc.</span></span>',
-          'For product mentions: <span itemscope itemtype="https://schema.org/Product"><span itemprop="name">Next.js 14</span></span>',
-          'For locations: <span itemscope itemtype="https://schema.org/Place"><span itemprop="name">San Francisco, CA</span></span>',
-          'For events: <div itemscope itemtype="https://schema.org/Event"><span itemprop="name">Next.js Conf 2024</span></div>'
+          'Ved personomtaler: <span itemscope itemtype="https://schema.org/Person"><span itemprop="name">Direktør Jane Smith</span></span>',
+          'Ved virksomhedsomtaler: <span itemscope itemtype="https://schema.org/Organization"><span itemprop="name">Vercel Inc.</span></span>',
+          'Ved produktomtaler: <span itemscope itemtype="https://schema.org/Product"><span itemprop="name">Next.js 14</span></span>',
+          'Ved steder: <span itemscope itemtype="https://schema.org/Place"><span itemprop="name">København, DK</span></span>',
+          'Ved begivenheder: <div itemscope itemtype="https://schema.org/Event"><span itemprop="name">Next.js Conf 2024</span></div>'
         ]
       },
       {
         id: 'completeness',
-        label: 'Content Completeness',
+        label: 'Indholdets fuldstændighed',
         score: 65,
         status: 'warning',
-        details: 'Main topics are covered but some sections lack comprehensive information.',
-        recommendation: 'Content is fairly complete. Add these sections to fill remaining gaps.',
+        details: 'Hovedemnerne er dækket, men nogle sektioner mangler uddybende information.',
+        recommendation: 'Indholdet er rimeligt komplet. Tilføj disse sektioner for at udfylde huller.',
         actionItems: [
-          'Add an FAQ section: <section class="faq"><h2>Frequently Asked Questions</h2><details><summary>What is X?</summary><p>Answer...</p></details></section>',
-          'Create a glossary: <dl><dt>API</dt><dd>Application Programming Interface - allows different software to communicate</dd></dl>',
-          'Add prerequisites box: <div class="prerequisites"><h3>Before you begin</h3><ul><li>Node.js 18+</li><li>Basic JavaScript knowledge</li></ul></div>',
-          'Include related links: <aside class="related"><h3>Related Topics</h3><ul><li><a href="/auth">Authentication Guide</a></li></ul></aside>',
-          'Add summary cards: <div class="summary">⚡ Key Points: <ul><li>Point 1</li><li>Point 2</li></ul></div>'
+          'Tilføj en FAQ-sektion: <section class="faq"><h2>Ofte stillede spørgsmål</h2><details><summary>Hvad er X?</summary><p>Svar…</p></details></section>',
+          'Lav en ordliste: <dl><dt>API</dt><dd>Application Programming Interface — lader forskellig software kommunikere</dd></dl>',
+          'Tilføj forudsætningsboks: <div class="prerequisites"><h3>Før du går i gang</h3><ul><li>Node.js 18+</li><li>Grundlæggende JavaScript-kendskab</li></ul></div>',
+          'Medtag relaterede links: <aside class="related"><h3>Relaterede emner</h3><ul><li><a href="/auth">Guide til autentificering</a></li></ul></aside>',
+          'Tilføj opsummeringskort: <div class="summary">⚡ Hovedpunkter: <ul><li>Punkt 1</li><li>Punkt 2</li></ul></div>'
         ]
       },
       {
         id: 'context-completeness',
-        label: 'Context Completeness',
+        label: 'Kontekstfuldstændighed',
         score: 65,
         status: 'warning',
-        details: 'Content provides good information but could include more contextual elements.',
-        recommendation: 'Add more context to help AI systems better understand your content.',
+        details: 'Indholdet har god information, men kunne indeholde flere kontekstuelle elementer.',
+        recommendation: 'Tilføj mere kontekst, så AI-systemer bedre kan forstå dit indhold.',
         actionItems: [
-          'Include brief introductions that explain the topic relevance',
-          'Define technical terms and acronyms when first used',
-          'Provide examples and use cases to illustrate concepts',
-          'Add publication dates and author information for credibility',
-          'Include summaries or key takeaways for complex topics'
+          'Tilføj korte introduktioner, der forklarer emnets relevans',
+          'Definér tekniske udtryk og forkortelser, første gang de bruges',
+          'Giv eksempler og use cases, der illustrerer koncepterne',
+          'Tilføj udgivelsesdatoer og forfatterinfo for troværdighed',
+          'Inkludér opsummeringer eller hovedpointer for komplekse emner'
         ]
       }
     ],
-    overallAIReadiness: 'The website shows moderate AI readiness with good basic structure but needs enhancement in data structuring and API accessibility.',
+    overallAIReadiness: 'Hjemmesiden viser moderat AI-parathed med en god grundstruktur, men har brug for forbedringer i datastrukturering og API-tilgængelighed.',
     topPriorities: [
-      'Implement comprehensive structured data schemas',
-      'Create API endpoints for content access',
-      'Enhance content depth and completeness'
+      'Implementér omfattende struktureret data (schema)',
+      'Opret API-endpoints til adgang til indhold',
+      'Øg indholdets dybde og fuldstændighed'
     ]
   };
 }

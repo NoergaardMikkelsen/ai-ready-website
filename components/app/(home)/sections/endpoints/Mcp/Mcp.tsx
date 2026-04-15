@@ -41,7 +41,7 @@ export default function EndpointsMcp({
 
     const render = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#FF4C00";
+      ctx.fillStyle = "#DF475B";
 
       for (let i = 0; i < 9; i++) {
         ctx.globalAlpha = rowAlphas[i];

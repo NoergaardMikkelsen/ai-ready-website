@@ -230,7 +230,7 @@ export default function HeroScraping() {
                       active={step === 2}
                       className="absolute right-[calc(100%+20px)] top-0"
                       initial={{ x: 12, opacity: 0 }}
-                      label="Button"
+                      label="Knap"
                     />
                   )}
                 </div>
@@ -257,7 +257,7 @@ export default function HeroScraping() {
                           active={step === 3}
                           className="absolute right-[calc(100%+16px)] top-0"
                           initial={{ x: 12, opacity: 0 }}
-                          label="H1 Title"
+                          label="H1-titel"
                         />
                       )}
                       <div className="w-144 h-32 rounded-8 relative before:inside-border before:border-border-muted" />
@@ -275,7 +275,7 @@ export default function HeroScraping() {
                           active={step === 4}
                           className="absolute top-0 right-[calc(100%+16px)]"
                           initial={{ x: 12, opacity: 0 }}
-                          label="Description"
+                          label="Beskrivelse"
                         />
                       )}
 
@@ -296,7 +296,7 @@ export default function HeroScraping() {
                           active={step === 5}
                           className="absolute top-0 right-[calc(100%+16px)]"
                           initial={{ x: 12, opacity: 0 }}
-                          label="CTA Button"
+                          label="CTA-knap"
                         />
                       )}
                     </div>

@@ -30,7 +30,7 @@ export default function EndpointsExtract({ size = 20 }: { size?: number }) {
     const scaler = size / 20;
 
     const render = () => {
-      ctx.fillStyle = "#FF4C00";
+      ctx.fillStyle = "#DF475B";
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       for (let i = 0; i < 16; i++) {

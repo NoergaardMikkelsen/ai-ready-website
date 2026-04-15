@@ -11,46 +11,46 @@
 }
 
 .button-primary {
-  background: #ff4c00;
-  background: color(display-p3 0.9816 0.3634 0.0984);
+  background: #df475b;
+  background: color(display-p3 0.874510 0.278431 0.356863);
 
   box-shadow: 0px -6px 12px 0px rgba(255, 0, 0, 0.2) inset,
-    0px 2px 4px 0px rgba(255, 77, 0, 0.12),
-    0px 1px 1px 0px rgba(255, 77, 0, 0.12),
-    0px 0.5px 0.5px 0px rgba(255, 77, 0, 0.16),
-    0px 0.25px 0.25px 0px rgba(255, 77, 0, 0.2);
+    0px 2px 4px 0px rgba(223, 71, 91, 0.12),
+    0px 1px 1px 0px rgba(223, 71, 91, 0.12),
+    0px 0.5px 0.5px 0px rgba(223, 71, 91, 0.16),
+    0px 0.25px 0.25px 0px rgba(223, 71, 91, 0.2);
 
-  box-shadow: 0px -6px 12px 0px color(display-p3 0.9804 0.1127 0.098 / 0.2) inset,
-    0px 2px 4px 0px color(display-p3 0.9804 0.3647 0.098 / 0.12),
-    0px 1px 1px 0px color(display-p3 0.9804 0.3647 0.098 / 0.12),
-    0px 0.5px 0.5px 0px color(display-p3 0.9804 0.3647 0.098 / 0.16),
-    0px 0.25px 0.25px 0px color(display-p3 0.9804 0.3647 0.098 / 0.2);
+  box-shadow: 0px -6px 12px 0px color(display-p3 0.776471 0.227451 0.301961 / 0.2) inset,
+    0px 2px 4px 0px color(display-p3 0.874510 0.278431 0.356863 / 0.12),
+    0px 1px 1px 0px color(display-p3 0.874510 0.278431 0.356863 / 0.12),
+    0px 0.5px 0.5px 0px color(display-p3 0.874510 0.278431 0.356863 / 0.16),
+    0px 0.25px 0.25px 0px color(display-p3 0.874510 0.278431 0.356863 / 0.2);
 }
 
 .button-primary:hover {
   box-shadow: 0px -6px 12px 0px rgba(255, 0, 0, 0.2) inset,
-    0px 4px 8px 0px rgba(255, 77, 0, 0.16),
-    0px 1px 1px 0px rgba(255, 77, 0, 0.12),
-    0px 0.5px 0.5px 0px rgba(255, 77, 0, 0.16),
-    0px 0.25px 0.25px 0px rgba(255, 77, 0, 0.2);
-  box-shadow: 0px -6px 12px 0px color(display-p3 0.9804 0.1127 0.098 / 0.2) inset,
-    0px 4px 8px 0px color(display-p3 0.9804 0.3647 0.098 / 0.16),
-    0px 1px 1px 0px color(display-p3 0.9804 0.3647 0.098 / 0.12),
-    0px 0.5px 0.5px 0px color(display-p3 0.9804 0.3647 0.098 / 0.16),
-    0px 0.25px 0.25px 0px color(display-p3 0.9804 0.3647 0.098 / 0.2);
+    0px 4px 8px 0px rgba(223, 71, 91, 0.16),
+    0px 1px 1px 0px rgba(223, 71, 91, 0.12),
+    0px 0.5px 0.5px 0px rgba(223, 71, 91, 0.16),
+    0px 0.25px 0.25px 0px rgba(223, 71, 91, 0.2);
+  box-shadow: 0px -6px 12px 0px color(display-p3 0.776471 0.227451 0.301961 / 0.2) inset,
+    0px 4px 8px 0px color(display-p3 0.874510 0.278431 0.356863 / 0.16),
+    0px 1px 1px 0px color(display-p3 0.874510 0.278431 0.356863 / 0.12),
+    0px 0.5px 0.5px 0px color(display-p3 0.874510 0.278431 0.356863 / 0.16),
+    0px 0.25px 0.25px 0px color(display-p3 0.874510 0.278431 0.356863 / 0.2);
 }
 
 .button-primary:active {
   box-shadow: 0px -6px 12px 0px rgba(255, 0, 0, 0.2) inset,
-    0px 2px 4px 0px rgba(255, 77, 0, 0.12),
-    0px 1px 1px 0px rgba(255, 77, 0, 0.12),
-    0px 0.5px 0.5px 0px rgba(255, 77, 0, 0.16),
-    0px 0.25px 0.25px 0px rgba(255, 77, 0, 0.2);
-  box-shadow: 0px -6px 12px 0px color(display-p3 0.9804 0.1127 0.098 / 0.2) inset,
-    0px 2px 4px 0px color(display-p3 0.9804 0.3647 0.098 / 0.12),
-    0px 1px 1px 0px color(display-p3 0.9804 0.3647 0.098 / 0.12),
-    0px 0.5px 0.5px 0px color(display-p3 0.9804 0.3647 0.098 / 0.16),
-    0px 0.25px 0.25px 0px color(display-p3 0.9804 0.3647 0.098 / 0.2);
+    0px 2px 4px 0px rgba(223, 71, 91, 0.12),
+    0px 1px 1px 0px rgba(223, 71, 91, 0.12),
+    0px 0.5px 0.5px 0px rgba(223, 71, 91, 0.16),
+    0px 0.25px 0.25px 0px rgba(223, 71, 91, 0.2);
+  box-shadow: 0px -6px 12px 0px color(display-p3 0.776471 0.227451 0.301961 / 0.2) inset,
+    0px 2px 4px 0px color(display-p3 0.874510 0.278431 0.356863 / 0.12),
+    0px 1px 1px 0px color(display-p3 0.874510 0.278431 0.356863 / 0.12),
+    0px 0.5px 0.5px 0px color(display-p3 0.874510 0.278431 0.356863 / 0.16),
+    0px 0.25px 0.25px 0px color(display-p3 0.874510 0.278431 0.356863 / 0.2);
 }
 
 .button-background {

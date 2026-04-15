@@ -28,7 +28,7 @@ import ControlPanel from "@/components/app/(home)/sections/ai-readiness/ControlP
 import HeaderBrandKit from "@/components/shared/header/BrandKit/BrandKit";
 import HeaderWrapper from "@/components/shared/header/Wrapper/Wrapper";
 import HeaderDropdownWrapper from "@/components/shared/header/Dropdown/Wrapper/Wrapper";
-import GithubIcon from "@/components/shared/header/Github/_svg/GithubIcon";
+import Image from "next/image";
 import ButtonUI from "@/components/ui/shadcn/button";
 
 export default function StyleGuidePage() {
@@ -65,12 +65,12 @@ export default function StyleGuidePage() {
       const urlObj = new URL(processedUrl);
       // Check if it's http or https
       if (!['http:', 'https:'].includes(urlObj.protocol)) {
-        setUrlError('Please enter a valid URL (e.g., example.com)');
+        setUrlError('Indtast en gyldig URL (fx eksempel.dk)');
         return;
       }
     } catch (error) {
       // If URL constructor throws, it's not a valid URL
-      setUrlError('Please enter a valid URL (e.g., example.com)');
+      setUrlError('Indtast en gyldig URL (fx eksempel.dk)');
       return;
     }
     
@@ -107,12 +107,12 @@ export default function StyleGuidePage() {
       } else {
         console.error('Analysis failed:', data.error);
         setIsAnalyzing(false);
-        alert('Failed to analyze website. Please check the URL and try again.');
+        alert('Kunne ikke analysere siden. Tjek URL\'en og prøv igen.');
       }
     } catch (error) {
       console.error('Analysis error:', error);
       setIsAnalyzing(false);
-      alert('An error occurred while analyzing the website.');
+      alert('Der opstod en fejl under analysen.');
     }
   };
 
@@ -139,15 +139,21 @@ export default function StyleGuidePage() {
               </div>
               
               <div className="flex gap-8">
-                {/* GitHub Template Button */}
                 <a
                   className="contents"
-                  href="https://github.com/firecrawl/ai-ready-website"
+                  href="https://nmic.dk"
                   target="_blank"
+                  rel="noopener"
                 >
                   <ButtonUI variant="tertiary">
-                    <GithubIcon />
-                    Use this Template
+                    <Image
+                      src="/nm_arrow.png"
+                      alt=""
+                      width={14}
+                      height={14}
+                      style={{ width: 14, height: 14 }}
+                    />
+                    Besøg nmic.dk
                   </ButtonUI>
                 </a>
               </div>
@@ -176,16 +182,16 @@ export default function StyleGuidePage() {
                   <HomeHeroTitle />
                   
                   <p className="text-center text-body-large">
-                    Analyze how AI-ready your webpage is from a single
+                    Analysér hvor klar din side er til AI — ud fra et enkelt
                     <br className="lg-max:hidden" />
-                    page snapshot. High-signal metrics for LLM compatibility.
+                    sidebesøg. Målbare signaler for LLM-kompatibilitet.
                   </p>
                   <Link
                     className="bg-black-alpha-4 hover:bg-black-alpha-6 rounded-6 px-8 lg:px-6 text-label-large h-30 lg:h-24 block mt-8 mx-auto w-max gap-4 transition-all"
                     href="#"
                     onClick={(e) => e.preventDefault()}
                   >
-                    Powered by Firecrawl.
+                    Drevet af Nørgaard Mikkelsen.
                   </Link>
                 </motion.div>
               ) : (
@@ -246,7 +252,7 @@ export default function StyleGuidePage() {
                   
                   <input
                     className={`flex-1 bg-transparent text-body-input text-accent-black placeholder:text-black-alpha-48 focus:outline-none focus:ring-0 focus:border-transparent ${urlError ? 'text-heat-200' : ''}`}
-                    placeholder="example.com"
+                    placeholder="www.example.dk"
                     type="text"
                     value={url}
                     onChange={(e) => {

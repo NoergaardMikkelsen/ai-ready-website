@@ -96,7 +96,7 @@ export default function InlineResults({
               className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-heat-100 rounded-full"
               style={{ 
                 left: `${((analysisStep + 1) / 4) * 100}%`,
-                boxShadow: "0 0 20px rgba(255, 77, 0, 0.8)",
+                boxShadow: "0 0 20px rgba(223, 71, 91, 0.8)",
               }}
               animate={{ 
                 scale: [1, 1.5, 1],

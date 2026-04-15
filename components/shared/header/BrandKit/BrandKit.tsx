@@ -6,7 +6,6 @@ import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import FirecrawlIcon from "@/components/shared/firecrawl-icon/firecrawl-icon";
 import Logo from "@/components/shared/header/_svg/Logo";
 import { useHeaderContext } from "@/components/shared/header/HeaderContext";
 import { cn } from "@/utils/cn";
@@ -45,7 +44,6 @@ export default function HeaderBrandKit() {
           }
         }}
       >
-        <FirecrawlIcon className="size-28 -top-2 relative" />
         <Logo />
       </Link>
 
@@ -147,7 +145,7 @@ const Menu = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
             strokeWidth="1.25"
           />
         </svg>
-        Open in new tab
+        Åbn i ny fane
       </Button>
 
       <div className="px-8 py-4">
@@ -169,7 +167,7 @@ const Menu = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
         onMouseLeave={onMouseLeave}
       >
         <Icon />
-        Copy logo as SVG
+        Kopiér logo som SVG
       </Button>
 
       <Button
@@ -180,7 +178,7 @@ const Menu = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
         onMouseLeave={onMouseLeave}
       >
         <Download />
-        Download brand assets
+        Hent brand-assets
       </Button>
 
       <div className="px-8 py-4">
@@ -195,7 +193,7 @@ const Menu = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
         onMouseLeave={onMouseLeave}
       >
         <Guidelines />
-        Visit brand guidelines
+        Se brandretningslinjer
       </Button>
     </motion.div>
   );

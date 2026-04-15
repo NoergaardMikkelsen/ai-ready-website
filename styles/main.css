@@ -161,7 +161,7 @@
 }
 
 .FireButton:hover {
-  box-shadow: 0 0 8px 2px #ff5d22af;
+  box-shadow: 0 0 8px 2px #c63a4daf;
 }
 
 @keyframes overlayShow {

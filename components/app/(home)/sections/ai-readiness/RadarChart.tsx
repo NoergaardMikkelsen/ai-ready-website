@@ -48,8 +48,8 @@ export default function RadarChart({ data, size = 300 }: RadarChartProps) {
       <svg width={size} height={size} className="overflow-visible">
         <defs>
           <linearGradient id="radar-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FF4A00" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#FF8533" stopOpacity="0.3" />
+            <stop offset="0%" stopColor="#df475b" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#e56e7e" stopOpacity="0.3" />
           </linearGradient>
           <filter id="radar-glow">
             <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
@@ -95,7 +95,7 @@ export default function RadarChart({ data, size = 300 }: RadarChartProps) {
         <motion.polygon
           points={polygonPoints}
           fill="url(#radar-gradient)"
-          stroke="#FF4A00"
+          stroke="#df475b"
           strokeWidth="2"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -112,7 +112,7 @@ export default function RadarChart({ data, size = 300 }: RadarChartProps) {
               cx={point.x}
               cy={point.y}
               r="4"
-              fill="#FF4A00"
+              fill="#df475b"
               stroke="white"
               strokeWidth="2"
               initial={{ scale: 0 }}
@@ -159,8 +159,8 @@ export default function RadarChart({ data, size = 300 }: RadarChartProps) {
                 y={y - 10}
                 width={60}
                 height={20}
-                fill="white"
-                fillOpacity={0.9}
+                fill="transparent"
+                fillOpacity={0}
                 rx={4}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}

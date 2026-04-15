@@ -42,7 +42,7 @@ export default function EndpointsExtract({
     const scaler = size / 20;
 
     const render = () => {
-      ctx.fillStyle = "#FF4C00";
+      ctx.fillStyle = "#DF475B";
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Draw Extract pattern - represents structured data extraction

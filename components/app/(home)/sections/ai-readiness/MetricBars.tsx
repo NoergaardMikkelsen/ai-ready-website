@@ -131,13 +131,13 @@ export default function MetricBars({ metrics }: MetricBarsProps) {
                     </div>
                     {metric.recommendation && (
                       <div>
-                        <div className="text-label-small text-black-alpha-48 mb-4">Recommendation</div>
+                        <div className="text-label-small text-black-alpha-48 mb-4">Anbefaling</div>
                         <div className="text-body-small text-black-alpha-64">{metric.recommendation}</div>
                       </div>
                     )}
                     {metric.actionItems && metric.actionItems.length > 0 && (
                       <div>
-                        <div className="text-label-small text-black-alpha-48 mb-4">Action Items</div>
+                        <div className="text-label-small text-black-alpha-48 mb-4">Handlingspunkter</div>
                         <ul className="space-y-4">
                           {metric.actionItems.map((item: string, i: number) => (
                             <li key={i} className="flex items-start gap-6 text-body-small text-black-alpha-64">
@@ -168,19 +168,19 @@ export default function MetricBars({ metrics }: MetricBarsProps) {
             <div className="text-title-h3 text-heat-150">
               {metrics.filter(m => m.status === 'pass').length}
             </div>
-            <div className="text-label-small text-black-alpha-48">Passing</div>
+            <div className="text-label-small text-black-alpha-48">Bestået</div>
           </div>
           <div>
             <div className="text-title-h3 text-heat-100">
               {metrics.filter(m => m.status === 'warning').length}
             </div>
-            <div className="text-label-small text-black-alpha-48">Warning</div>
+            <div className="text-label-small text-black-alpha-48">Advarsel</div>
           </div>
           <div>
             <div className="text-title-h3 text-heat-50">
               {metrics.filter(m => m.status === 'fail').length}
             </div>
-            <div className="text-label-small text-black-alpha-48">Failing</div>
+            <div className="text-label-small text-black-alpha-48">Fejlet</div>
           </div>
         </div>
       </motion.div>

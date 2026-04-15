@@ -75,17 +75,17 @@ async function analyzeHTML(html: string, metadata: any, url: string): Promise<Ch
   // Check for single H1
   if (h1Count === 0) {
     headingScore -= 40;
-    headingIssues.push('No H1 found');
+    headingIssues.push('Ingen H1 fundet');
   } else if (h1Count > 1) {
     headingScore -= 30;
-    headingIssues.push(`Multiple H1s (${h1Count}) create topic ambiguity`);
+    headingIssues.push(`Flere H1 (${h1Count}) gør emnet tvetydigt`);
   }
   
   // Check heading hierarchy
   for (let i = 1; i < headingLevels.length; i++) {
     if (headingLevels[i] - headingLevels[i-1] > 1) {
       headingScore -= 15;
-      headingIssues.push(`Skipped heading level (H${headingLevels[i-1]} → H${headingLevels[i]})`);
+      headingIssues.push(`Overskriftsniveau sprunget over (H${headingLevels[i-1]} → H${headingLevels[i]})`);
     }
   }
   
@@ -93,13 +93,13 @@ async function analyzeHTML(html: string, metadata: any, url: string): Promise<Ch
   
   results.push({
     id: 'heading-structure',
-    label: 'Heading Hierarchy',
+    label: 'Overskriftshierarki',
     status: headingScore >= 80 ? 'pass' : headingScore >= 50 ? 'warning' : 'fail',
     score: headingScore,
-    details: headingIssues.length > 0 ? headingIssues.join(', ') : `Perfect hierarchy with ${h1Count} H1 and logical structure`,
+    details: headingIssues.length > 0 ? headingIssues.join(', ') : `Perfekt hierarki med ${h1Count} H1 og logisk struktur`,
     recommendation: headingScore < 80 ? 
-      'Use exactly one H1 and maintain logical heading hierarchy (H1→H2→H3)' : 
-      'Excellent heading structure for AI comprehension'
+      'Brug præcis én H1, og bevar et logisk overskriftshierarki (H1→H2→H3)' : 
+      'Fremragende overskriftsstruktur til AI-forståelse'
   });
   
   console.log('[AI-READY] HTML Check 3/5: Calculating readability score...');
@@ -112,30 +112,30 @@ async function analyzeHTML(html: string, metadata: any, url: string): Promise<Ch
   if (readabilityScore >= 70) {
     normalizedScore = 100;
     readabilityStatus = 'pass';
-    readabilityDetails = `Very readable (Flesch: ${Math.round(readabilityScore)})`;
+    readabilityDetails = `Meget læsbar (Flesch: ${Math.round(readabilityScore)})`;
   } else if (readabilityScore >= 50) {
     normalizedScore = 80;
     readabilityStatus = 'pass';
-    readabilityDetails = `Good readability (Flesch: ${Math.round(readabilityScore)})`;
+    readabilityDetails = `God læsbarhed (Flesch: ${Math.round(readabilityScore)})`;
   } else if (readabilityScore >= 30) {
     normalizedScore = 50;
     readabilityStatus = 'warning';
-    readabilityDetails = `Difficult to read (Flesch: ${Math.round(readabilityScore)})`;
+    readabilityDetails = `Svær at læse (Flesch: ${Math.round(readabilityScore)})`;
   } else {
     normalizedScore = 20;
     readabilityStatus = 'fail';
-    readabilityDetails = `Very difficult (Flesch: ${Math.round(readabilityScore)})`;
+    readabilityDetails = `Meget svær (Flesch: ${Math.round(readabilityScore)})`;
   }
   
   results.push({
     id: 'readability',
-    label: 'Content Readability',
+    label: 'Læsbarhed',
     status: readabilityStatus,
     score: normalizedScore,
     details: readabilityDetails,
     recommendation: normalizedScore < 80 ? 
-      'Simplify sentences and use clearer language for better AI comprehension' : 
-      'Content is clearly written and AI-friendly'
+      'Forenkl sætninger og brug et klarere sprog for bedre AI-forståelse' : 
+      'Indholdet er klart skrevet og AI-venligt'
   });
   
   console.log('[AI-READY] HTML Check 4/5: Checking metadata quality...');
@@ -158,42 +158,42 @@ async function analyzeHTML(html: string, metadata: any, url: string): Promise<Ch
   
   if (hasOgTitle) {
     metaScore += 30;
-    metaDetails.push('Title ✓');
+    metaDetails.push('Titel ✓');
   } else if (html.includes('<title')) {
     metaScore += 20;
-    metaDetails.push('Basic title');
+    metaDetails.push('Grundlæggende titel');
   }
   
   if (hasOgDescription) {
     metaScore += 25;
     if (hasGoodDescLength) {
       metaScore += 10;
-      metaDetails.push('Description ✓');
+      metaDetails.push('Beskrivelse ✓');
     } else {
-      metaDetails.push('Description');
+      metaDetails.push('Beskrivelse');
     }
   }
   
   if (hasAuthor) {
     metaScore += 10;
-    metaDetails.push('Author ✓');
+    metaDetails.push('Forfatter ✓');
   }
   if (hasPublishDate) {
     metaScore += 10;
-    metaDetails.push('Date ✓');
+    metaDetails.push('Dato ✓');
   }
   
   // Cap at 100
   metaScore = Math.min(100, metaScore);
   results.push({
     id: 'meta-tags',
-    label: 'Metadata Quality',
+    label: 'Metadata-kvalitet',
     status: metaScore >= 70 ? 'pass' : metaScore >= 40 ? 'warning' : 'fail',
     score: metaScore,
-    details: metaDetails.length > 0 ? metaDetails.join(', ') : 'Missing critical metadata',
+    details: metaDetails.length > 0 ? metaDetails.join(', ') : 'Mangler vigtig metadata',
     recommendation: metaScore < 70 ? 
-      'Add title, description (70-160 chars), author, and publish date metadata' : 
-      'Metadata provides excellent context for AI'
+      'Tilføj titel, beskrivelse (70–160 tegn), forfatter og udgivelsesdato' : 
+      'Metadata giver fremragende kontekst til AI'
   });
   
   console.log('[AI-READY] HTML Check 5/5: Checking semantic HTML and accessibility...');
@@ -212,11 +212,11 @@ async function analyzeHTML(html: string, metadata: any, url: string): Promise<Ch
   
   results.push({
     id: 'semantic-html',
-    label: 'Semantic HTML',
+    label: 'Semantisk HTML',
     status: semanticScore >= 80 ? 'pass' : semanticScore >= 40 ? 'warning' : 'fail',
     score: semanticScore,
-    details: `Found ${semanticCount} semantic HTML5 elements`,
-    recommendation: semanticScore < 80 ? 'Use more semantic HTML5 elements (article, nav, main, section, etc.)' : 'Excellent use of semantic HTML'
+    details: `Fundet ${semanticCount} semantiske HTML5-elementer`,
+    recommendation: semanticScore < 80 ? 'Brug flere semantiske HTML5-elementer (article, nav, main, section osv.)' : 'Fremragende brug af semantisk HTML'
   });
   
   // 7. Check accessibility (Lower Signal but still important)
@@ -240,11 +240,11 @@ async function analyzeHTML(html: string, metadata: any, url: string): Promise<Ch
   
   results.push({
     id: 'accessibility',
-    label: 'Accessibility',
+    label: 'Tilgængelighed',
     status: accessibilityScore >= 80 ? 'pass' : accessibilityScore >= 50 ? 'warning' : 'fail',
     score: Math.round(accessibilityScore),
-    details: `${Math.round(altTextRatio)}% images have alt text, ARIA labels: ${hasAriaLabels ? 'Yes' : 'No'}`,
-    recommendation: accessibilityScore < 80 ? 'Add alt text to all images and use ARIA labels for interactive elements' : 'Good accessibility implementation'
+    details: `${Math.round(altTextRatio)}% af billeder har alt-tekst, ARIA-labels: ${hasAriaLabels ? 'Ja' : 'Nej'}`,
+    recommendation: accessibilityScore < 80 ? 'Tilføj alt-tekst til alle billeder, og brug ARIA-labels til interaktive elementer' : 'God tilgængelighedsimplementering'
   });
   return results;
 }
@@ -273,8 +273,8 @@ async function checkAdditionalFiles(domain: string): Promise<{ robots: CheckResu
     label: 'Robots.txt',
     status: 'fail',
     score: 0,
-    details: 'No robots.txt file found',
-    recommendation: 'Create a robots.txt file with AI crawler directives'
+    details: 'Ingen robots.txt-fil fundet',
+    recommendation: 'Opret en robots.txt-fil med direktiver til AI-crawlere'
   };
   
   let sitemapCheck: CheckResult = {
@@ -282,8 +282,8 @@ async function checkAdditionalFiles(domain: string): Promise<{ robots: CheckResu
     label: 'Sitemap',
     status: 'fail',
     score: 0,
-    details: 'No sitemap.xml found',
-    recommendation: 'Generate and submit an XML sitemap'
+    details: 'Ingen sitemap.xml fundet',
+    recommendation: 'Generér og indsend en XML-sitemap'
   };
   
   let llmsCheck: CheckResult = {
@@ -291,8 +291,8 @@ async function checkAdditionalFiles(domain: string): Promise<{ robots: CheckResu
     label: 'LLMs.txt',
     status: 'fail',
     score: 0,
-    details: 'No llms.txt file found',
-    recommendation: 'Add an llms.txt file to define AI usage permissions'
+    details: 'Ingen llms.txt-fil fundet',
+    recommendation: 'Tilføj en llms.txt-fil for at definere AI-tilladelser'
   };
   
   // Store robots.txt content for sitemap extraction
@@ -324,8 +324,8 @@ async function checkAdditionalFiles(domain: string): Promise<{ robots: CheckResu
             label: 'Robots.txt',
             status: score >= 80 ? 'pass' : score >= 40 ? 'warning' : 'fail',
             score,
-            details: `Robots.txt found${hasSitemap ? ` with ${sitemapUrls.length} sitemap reference(s)` : ''}`,
-            recommendation: score < 80 ? 'Add sitemap reference to robots.txt' : 'Robots.txt properly configured'
+            details: `Robots.txt fundet${hasSitemap ? ` med ${sitemapUrls.length} sitemap-reference(r)` : ''}`,
+            recommendation: score < 80 ? 'Tilføj sitemap-reference til robots.txt' : 'Robots.txt er korrekt konfigureret'
           };
         }
       })
@@ -354,8 +354,8 @@ async function checkAdditionalFiles(domain: string): Promise<{ robots: CheckResu
                 label: 'LLMs.txt',
                 status: 'pass',
                 score: 100,
-                details: `${filename} file found with AI usage guidelines`,
-                recommendation: 'Great! You have defined AI usage permissions'
+                details: `${filename} fundet med retningslinjer for AI-brug`,
+                recommendation: 'Flot! Du har defineret AI-tilladelser'
               };
             }
           }
@@ -408,8 +408,8 @@ async function checkAdditionalFiles(domain: string): Promise<{ robots: CheckResu
             label: 'Sitemap',
             status: 'pass',
             score: 100,
-            details: `Valid XML sitemap found${fromRobots ? ' (referenced in robots.txt)' : ` at ${sitemapUrl.replace(cleanUrl, '')}`}`,
-            recommendation: 'Sitemap is properly configured'
+            details: `Gyldig XML-sitemap fundet${fromRobots ? ' (refereret i robots.txt)' : ` på ${sitemapUrl.replace(cleanUrl, '')}`}`,
+            recommendation: 'Sitemap er korrekt konfigureret'
           };
           break; // Found a valid sitemap, stop checking
         }
@@ -460,7 +460,7 @@ export async function POST(request: NextRequest) {
     let { url } = await request.json();
     
     if (!url) {
-      return NextResponse.json({ error: 'URL is required' }, { status: 400 });
+      return NextResponse.json({ error: 'URL er påkrævet' }, { status: 400 });
     }
     
     // Ensure URL has protocol
@@ -472,7 +472,7 @@ export async function POST(request: NextRequest) {
     try {
       new URL(url);
     } catch (e) {
-      return NextResponse.json({ error: 'Invalid URL format' }, { status: 400 });
+      return NextResponse.json({ error: 'Ugyldigt URL-format' }, { status: 400 });
     }
     
     console.log('[AI-READY] Step 1/4: Starting Firecrawl scrape...');
@@ -487,7 +487,7 @@ export async function POST(request: NextRequest) {
       console.log(`[AI-READY] Step 1/4: Firecrawl scrape completed in ${Date.now() - scrapeStartTime}ms`);
     } catch (scrapeError) {
       console.error('Firecrawl scrape error:', scrapeError);
-      return NextResponse.json({ error: 'Failed to scrape website. Please check the URL.' }, { status: 500 });
+      return NextResponse.json({ error: 'Kunne ikke scanne hjemmesiden. Tjek URL\'en.' }, { status: 500 });
     }
     
     // Check different possible response structures
@@ -496,7 +496,7 @@ export async function POST(request: NextRequest) {
     
     if (!html) {
       console.error('No HTML content found in response');
-      return NextResponse.json({ error: 'Failed to extract content from website' }, { status: 500 });
+      return NextResponse.json({ error: 'Kunne ikke hente indhold fra hjemmesiden' }, { status: 500 });
     }
     
     console.log('[AI-READY] Step 2/4: Analyzing HTML content...');
@@ -596,7 +596,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('AI Readiness analysis error:', error);
     return NextResponse.json(
-      { error: 'Failed to analyze website' },
+      { error: 'Kunne ikke analysere hjemmesiden' },
       { status: 500 }
     );
   }

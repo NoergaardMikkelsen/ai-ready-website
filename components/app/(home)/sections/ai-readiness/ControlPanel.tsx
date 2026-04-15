@@ -61,57 +61,57 @@ export default function ControlPanel({
   const [checks, setChecks] = useState<CheckItem[]>([
     {
       id: 'heading-structure',
-      label: 'Heading Hierarchy',
-      description: 'H1-H6 structure',
+      label: 'Overskriftshierarki',
+      description: 'H1–H6-struktur',
       icon: FileText,
       status: 'pending',
     },
     {
       id: 'readability',
-      label: 'Readability',
-      description: 'Content clarity',
+      label: 'Læsbarhed',
+      description: 'Indholdets klarhed',
       icon: Globe,
       status: 'pending',
     },
     {
       id: 'meta-tags',
-      label: 'Metadata Quality',
-      description: 'Title, desc, author',
+      label: 'Metadata-kvalitet',
+      description: 'Titel, beskrivelse, forfatter',
       icon: FileCode,
       status: 'pending',
     },
     {
       id: 'semantic-html',
-      label: 'Semantic HTML',
-      description: 'Proper HTML5 tags',
+      label: 'Semantisk HTML',
+      description: 'Korrekte HTML5-tags',
       icon: Code,
       status: 'pending',
     },
     {
       id: 'accessibility',
-      label: 'Accessibility',
-      description: 'Alt text & ARIA',
+      label: 'Tilgængelighed',
+      description: 'Alt-tekst og ARIA',
       icon: Eye,
       status: 'pending',
     },
     {
       id: 'llms-txt',
       label: 'LLMs.txt',
-      description: 'AI permissions',
+      description: 'AI-tilladelser',
       icon: Bot,
       status: 'pending',
     },
     {
       id: 'robots-txt',
       label: 'Robots.txt',
-      description: 'Crawler rules',
+      description: 'Crawler-regler',
       icon: Shield,
       status: 'pending',
     },
     {
       id: 'sitemap',
       label: 'Sitemap',
-      description: 'Site structure',
+      description: 'Sidestruktur',
       icon: Network,
       status: 'pending',
     },
@@ -147,8 +147,8 @@ export default function ControlPanel({
         const placeholderAIChecks = [
           {
             id: 'ai-loading-0',
-            label: 'Content Quality for AI',
-            description: 'Analyzing content signal ratio...',
+            label: 'Indholdskvalitet til AI',
+            description: 'Analyserer signalforhold i indholdet…',
             icon: Sparkles,
             status: 'checking' as const,
             score: 0,
@@ -157,8 +157,8 @@ export default function ControlPanel({
           },
           {
             id: 'ai-loading-1',
-            label: 'Information Architecture',
-            description: 'Evaluating page structure...',
+            label: 'Informationsarkitektur',
+            description: 'Vurderer sidens struktur…',
             icon: Bot,
             status: 'checking' as const,
             score: 0,
@@ -167,8 +167,8 @@ export default function ControlPanel({
           },
           {
             id: 'ai-loading-2',
-            label: 'Crawlability Patterns',
-            description: 'Checking JavaScript usage...',
+            label: 'Crawlbarhed',
+            description: 'Tjekker JavaScript-brug…',
             icon: Database,
             status: 'checking' as const,
             score: 0,
@@ -177,8 +177,8 @@ export default function ControlPanel({
           },
           {
             id: 'ai-loading-3',
-            label: 'AI Training Value',
-            description: 'Assessing training potential...',
+            label: 'Værdi for AI-træning',
+            description: 'Vurderer træningspotentiale…',
             icon: Network,
             status: 'checking' as const,
             score: 0,
@@ -187,8 +187,8 @@ export default function ControlPanel({
           },
           {
             id: 'ai-loading-4',
-            label: 'Knowledge Extraction',
-            description: 'Analyzing entity definitions...',
+            label: 'Vidensudtræk',
+            description: 'Analyserer entitetsdefinitioner…',
             icon: FileCode,
             status: 'checking' as const,
             score: 0,
@@ -197,8 +197,8 @@ export default function ControlPanel({
           },
           {
             id: 'ai-loading-5',
-            label: 'Template Quality',
-            description: 'Reviewing semantic structure...',
+            label: 'Skabelonkvalitet',
+            description: 'Gennemgår semantisk struktur…',
             icon: Shield,
             status: 'checking' as const,
             score: 0,
@@ -207,8 +207,8 @@ export default function ControlPanel({
           },
           {
             id: 'ai-loading-6',
-            label: 'Content Depth',
-            description: 'Measuring content richness...',
+            label: 'Indholdsdybde',
+            description: 'Måler indholdets dybde…',
             icon: Zap,
             status: 'checking' as const,
             score: 0,
@@ -217,8 +217,8 @@ export default function ControlPanel({
           },
           {
             id: 'ai-loading-7',
-            label: 'Machine Readability',
-            description: 'Testing extraction reliability...',
+            label: 'Maskinlæsbarhed',
+            description: 'Tester udtrækspålidelighed…',
             icon: Globe,
             status: 'checking' as const,
             score: 0,
@@ -244,7 +244,7 @@ export default function ControlPanel({
                 const aiChecks: CheckItem[] = data.insights.map((insight: any, idx: number) => ({
                   ...insight,
                   icon: [Sparkles, Bot, Database, Network, FileCode, Shield, Zap, Globe][idx % 8],
-                  description: insight.details?.substring(0, 60) + '...' || 'AI Analysis',
+                  description: insight.details?.substring(0, 60) + '...' || 'AI-analyse',
                   isAI: true,
                 }));
                 
@@ -354,7 +354,7 @@ export default function ControlPanel({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.5 }}
-      className="w-full max-w-[1200px] mx-auto"
+      className="w-full max-w-[1440px] mx-auto"
     >
       {/* Header */}
       <motion.div 
@@ -363,8 +363,8 @@ export default function ControlPanel({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <h2 className="text-title-h2 text-accent-black mb-12">AI Readiness Analysis</h2>
-        <p className="text-body-large text-black-alpha-64">Single-page snapshot of {url}</p>
+        <h2 className="text-title-h2 text-accent-black mb-12">AI-parathedsanalyse</h2>
+        <p className="text-body-large text-black-alpha-64">Øjebliksbillede af én side: {url}</p>
         
         {showResults && (
           <>
@@ -383,7 +383,7 @@ export default function ControlPanel({
                     : 'bg-black-alpha-4 text-black-alpha-64 hover:bg-black-alpha-8'
                 }`}
               >
-                Grid View
+                Gitter
               </button>
               <button
                 onClick={() => setViewMode('chart')}
@@ -393,7 +393,7 @@ export default function ControlPanel({
                     : 'bg-black-alpha-4 text-black-alpha-64 hover:bg-black-alpha-8'
                 }`}
               >
-                Radar Chart
+                Radar-diagram
               </button>
               <button
                 onClick={() => setViewMode('bars')}
@@ -403,7 +403,7 @@ export default function ControlPanel({
                     : 'bg-black-alpha-4 text-black-alpha-64 hover:bg-black-alpha-8'
                 }`}
               >
-                Bar Chart
+                Søjlediagram
               </button>
             </motion.div>
             
@@ -442,7 +442,8 @@ export default function ControlPanel({
                   scale: { type: "spring", stiffness: 300 }
                 }}
                 className={`
-                  relative p-16 rounded-8 transition-all bg-accent-white border
+                  relative p-16 rounded-8 transition-all bg-accent-white border min-w-0
+                  [&_*]:min-w-0
                   ${(check as any).isAI ? 'border-heat-100 border-opacity-40 bg-gradient-to-br from-accent-white to-heat-4' : 'border-black-alpha-8'}
                   ${isActive ? 'border-heat-100 shadow-lg' : ''}
                   ${check.status !== 'pending' && check.status !== 'checking' ? 'cursor-pointer hover:shadow-md' : ''}
@@ -514,7 +515,7 @@ export default function ControlPanel({
                         transition={{ delay: 0.5 }}
                         className="text-label-x-small text-black-alpha-32 mt-4 text-center"
                       >
-                        Click for details
+                        Klik for detaljer
                       </motion.div>
                     </>
                   )}
@@ -530,20 +531,20 @@ export default function ControlPanel({
                       transition={{ duration: 0.2 }}
                       className="mt-12 pt-12 border-t border-black-alpha-8"
                     >
-                      <div className="space-y-6">
-                        <div>
+                      <div className="space-y-6 min-w-0">
+                        <div className="min-w-0">
                           <div className="text-label-small text-black-alpha-48 mb-2">Status</div>
-                          <div className="text-body-small text-accent-black">{check.details}</div>
+                          <div className="text-body-small text-accent-black break-words [overflow-wrap:anywhere]">{check.details}</div>
                         </div>
-                        <div>
-                          <div className="text-label-small text-black-alpha-48 mb-2">Recommendation</div>
-                          <div className="text-body-small text-black-alpha-64">{check.recommendation}</div>
+                        <div className="min-w-0">
+                          <div className="text-label-small text-black-alpha-48 mb-2">Anbefaling</div>
+                          <div className="text-body-small text-black-alpha-64 break-words [overflow-wrap:anywhere]">{check.recommendation}</div>
                           {check.actionItems && check.actionItems.length > 0 && (
                             <ul className="mt-4 space-y-2">
                               {check.actionItems.map((item: string, i: number) => (
-                                <li key={i} className="flex items-start gap-6 text-body-small text-black-alpha-64">
-                                  <span className="text-heat-100 mt-1">•</span>
-                                  <span>{item}</span>
+                                <li key={i} className="flex items-start gap-6 text-body-small text-black-alpha-64 min-w-0">
+                                  <span className="text-heat-100 mt-1 shrink-0">•</span>
+                                  <span className="min-w-0 break-words [overflow-wrap:anywhere]">{item}</span>
                                 </li>
                               ))}
                             </ul>
@@ -570,7 +571,7 @@ export default function ControlPanel({
           >
             {/* Basic Analysis Chart */}
             <div className="flex flex-col items-center">
-              <h3 className="text-label-large text-accent-black mb-16 font-medium">Basic Analysis</h3>
+              <h3 className="text-label-large text-accent-black mb-16 font-medium">Grundanalyse</h3>
               <RadarChart 
                 data={checks
                   .filter(check => check.status !== 'pending' && check.status !== 'checking')
@@ -583,7 +584,7 @@ export default function ControlPanel({
               />
               <div className="mt-16 text-center">
                 <div className="text-title-h3 text-accent-black">{overallScore}%</div>
-                <div className="text-label-small text-black-alpha-48">Overall Score</div>
+                <div className="text-label-small text-black-alpha-48">Samlet score</div>
               </div>
             </div>
             
@@ -595,7 +596,7 @@ export default function ControlPanel({
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2, type: "spring" }}
               >
-                <div className="text-label-large text-black-alpha-32 font-medium">VS</div>
+                <div className="text-label-large text-black-alpha-32 font-medium">MOD</div>
               </motion.div>
             )}
             
@@ -607,7 +608,7 @@ export default function ControlPanel({
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <h3 className="text-label-large text-heat-100 mb-16 font-medium">AI Enhanced Analysis</h3>
+                <h3 className="text-label-large text-heat-100 mb-16 font-medium">AI-forbedret analyse</h3>
                 <RadarChart 
                   data={aiInsights
                     .filter(check => check.status !== 'pending' && check.status !== 'checking')
@@ -622,7 +623,7 @@ export default function ControlPanel({
                   <div className="text-title-h3 text-heat-100">
                     {Math.round(aiInsights.reduce((sum, check) => sum + (check.score || 0), 0) / aiInsights.length)}%
                   </div>
-                  <div className="text-label-small text-heat-100 opacity-60">AI Score</div>
+                  <div className="text-label-small text-heat-100 opacity-60">AI-score</div>
                 </div>
               </motion.div>
             )}
@@ -638,7 +639,7 @@ export default function ControlPanel({
             >
               <div className="inline-flex items-center gap-8 px-16 py-8 bg-heat-4 rounded-8">
                 <span className="text-label-medium text-accent-black">
-                  AI analysis found {aiInsights.filter(i => i.score && i.score < 50).length} additional areas for improvement
+                  AI-analysen fandt {aiInsights.filter(i => i.score && i.score < 50).length} yderligere forbedringsområder
                 </span>
               </div>
             </motion.div>
@@ -683,7 +684,7 @@ export default function ControlPanel({
             onClick={onReset}
             className="px-20 py-10 bg-accent-white border border-black-alpha-8 hover:bg-black-alpha-4 rounded-8 text-label-medium transition-all"
           >
-            Analyze Another Site
+            Analysér en anden side
           </button>
           {true && ( 
             <button 
@@ -695,8 +696,8 @@ export default function ControlPanel({
               const placeholderAIChecks = [
                 {
                   id: 'ai-loading-0',
-                  label: 'Content Quality for AI',
-                  description: 'Analyzing content signal ratio...',
+                  label: 'Indholdskvalitet til AI',
+                  description: 'Analyserer signalforhold i indholdet…',
                   icon: Sparkles,
                   status: 'checking' as const,
                   score: 0,
@@ -705,8 +706,8 @@ export default function ControlPanel({
                 },
                 {
                   id: 'ai-loading-1',
-                  label: 'Information Architecture',
-                  description: 'Evaluating page structure...',
+                  label: 'Informationsarkitektur',
+                  description: 'Vurderer sidens struktur…',
                   icon: Bot,
                   status: 'checking' as const,
                   score: 0,
@@ -715,8 +716,8 @@ export default function ControlPanel({
                 },
                 {
                   id: 'ai-loading-2',
-                  label: 'Crawlability Patterns',
-                  description: 'Checking JavaScript usage...',
+                  label: 'Crawlbarhed',
+                  description: 'Tjekker JavaScript-brug…',
                   icon: Database,
                   status: 'checking' as const,
                   score: 0,
@@ -725,8 +726,8 @@ export default function ControlPanel({
                 },
                 {
                   id: 'ai-loading-3',
-                  label: 'AI Training Value',
-                  description: 'Assessing training potential...',
+                  label: 'Værdi for AI-træning',
+                  description: 'Vurderer træningspotentiale…',
                   icon: Network,
                   status: 'checking' as const,
                   score: 0,
@@ -735,8 +736,8 @@ export default function ControlPanel({
                 },
                 {
                   id: 'ai-loading-4',
-                  label: 'Knowledge Extraction',
-                  description: 'Analyzing entity definitions...',
+                  label: 'Vidensudtræk',
+                  description: 'Analyserer entitetsdefinitioner…',
                   icon: FileCode,
                   status: 'checking' as const,
                   score: 0,
@@ -745,8 +746,8 @@ export default function ControlPanel({
                 },
                 {
                   id: 'ai-loading-5',
-                  label: 'Template Quality',
-                  description: 'Reviewing semantic structure...',
+                  label: 'Skabelonkvalitet',
+                  description: 'Gennemgår semantisk struktur…',
                   icon: Shield,
                   status: 'checking' as const,
                   score: 0,
@@ -755,8 +756,8 @@ export default function ControlPanel({
                 },
                 {
                   id: 'ai-loading-6',
-                  label: 'Content Depth',
-                  description: 'Measuring content richness...',
+                  label: 'Indholdsdybde',
+                  description: 'Måler indholdets dybde…',
                   icon: Zap,
                   status: 'checking' as const,
                   score: 0,
@@ -765,8 +766,8 @@ export default function ControlPanel({
                 },
                 {
                   id: 'ai-loading-7',
-                  label: 'Machine Readability',
-                  description: 'Testing extraction reliability...',
+                  label: 'Maskinlæsbarhed',
+                  description: 'Tester udtrækspålidelighed…',
                   icon: Globe,
                   status: 'checking' as const,
                   score: 0,
@@ -799,7 +800,7 @@ export default function ControlPanel({
                   const aiChecks: CheckItem[] = data.insights.map((insight: any, idx: number) => ({
                     ...insight,
                     icon: [Sparkles, Bot, Database, Network, FileCode, Shield, Zap, Globe][idx % 8],
-                    description: insight.details?.substring(0, 60) + '...' || 'AI Analysis',
+                    description: insight.details?.substring(0, 60) + '...' || 'AI-analyse',
                     isAI: true, // Mark as AI-generated
                   }));
                   
@@ -832,7 +833,7 @@ export default function ControlPanel({
             disabled={isAnalyzingAI}
             className="px-20 py-10 bg-accent-black hover:bg-black-alpha-80 text-white rounded-8 text-label-medium transition-all disabled:opacity-50"
           >
-              {isAnalyzingAI ? 'Analyzing...' : 'Analyze with AI'}
+              {isAnalyzingAI ? 'Analyserer…' : 'Analysér med AI'}
             </button>
           )}
         </motion.div>

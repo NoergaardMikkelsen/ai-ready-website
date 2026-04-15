@@ -221,15 +221,15 @@
 
 /* Heat glow effect */
 .heat-glow {
-  box-shadow: 0 0 40px rgba(250, 93, 25, 0.3);
+  box-shadow: 0 0 40px rgba(223, 71, 91, 0.3);
   animation: heat-glow 3s ease-in-out infinite;
 }
 
 @keyframes heat-glow {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(250, 93, 25, 0.2);
+    box-shadow: 0 0 20px rgba(223, 71, 91, 0.2);
   }
   50% {
-    box-shadow: 0 0 40px rgba(250, 93, 25, 0.4);
+    box-shadow: 0 0 40px rgba(223, 71, 91, 0.4);
   }
 }

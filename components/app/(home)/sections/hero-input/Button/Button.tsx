@@ -22,7 +22,7 @@ export default function HeroInputSubmitButton({
             key={dirty ? "dirty" : "clean"}
           >
             {dirty ? (
-              <div className="py-8 w-126 text-center text-white">Analyze Site</div>
+              <div className="py-8 w-126 text-center text-white">Analysér side</div>
             ) : (
               <div className="w-60 py-8 flex-center">
                 <ArrowRight />

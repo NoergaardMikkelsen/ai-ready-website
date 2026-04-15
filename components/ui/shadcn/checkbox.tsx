@@ -24,7 +24,7 @@ export default function Checkbox({
         )}
         style={{
           boxShadow: checked
-            ? "0px 2px 4px 0px rgba(255, 77, 0, 0.12), 0px 1px 1px 0px rgba(255, 77, 0, 0.12), 0px 0.5px 0.5px 0px rgba(255, 77, 0, 0.16), 0px 0.25px 0.25px 0px rgba(255, 77, 0, 0.20)"
+            ? "0px 2px 4px 0px rgba(223, 71, 91, 0.12), 0px 1px 1px 0px rgba(223, 71, 91, 0.12), 0px 0.5px 0.5px 0px rgba(223, 71, 91, 0.16), 0px 0.25px 0.25px 0px rgba(223, 71, 91, 0.20)"
             : "",
         }}
       >
