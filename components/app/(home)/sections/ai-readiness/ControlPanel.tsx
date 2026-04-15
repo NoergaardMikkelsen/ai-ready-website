@@ -27,7 +27,50 @@ import ScoreChart from "./ScoreChart";
 import RadarChart from "./RadarChart";
 import MetricBars from "./MetricBars";
 import HubspotGate from "@/components/shared/hubspot-gate/HubspotGate";
+import AITeaseCTA from "@/components/shared/ai-tease-cta/AITeaseCTA";
 import { hasUnlockedAIAtom } from "@/atoms/gate";
+
+const AI_PLACEHOLDER_BASE = [
+  { id: 'ai-loading-0', label: 'Indholdskvalitet til AI', description: 'Analyserer signalforhold i indholdet…', icon: Sparkles, score: 0 },
+  { id: 'ai-loading-1', label: 'Informationsarkitektur', description: 'Vurderer sidens struktur…', icon: Bot, score: 0 },
+  { id: 'ai-loading-2', label: 'Crawlbarhed', description: 'Tjekker JavaScript-brug…', icon: Database, score: 0 },
+  { id: 'ai-loading-3', label: 'Værdi for AI-træning', description: 'Vurderer træningspotentiale…', icon: Network, score: 0 },
+  { id: 'ai-loading-4', label: 'Vidensudtræk', description: 'Analyserer entitetsdefinitioner…', icon: FileCode, score: 0 },
+  { id: 'ai-loading-5', label: 'Skabelonkvalitet', description: 'Gennemgår semantisk struktur…', icon: Shield, score: 0 },
+  { id: 'ai-loading-6', label: 'Indholdsdybde', description: 'Måler indholdets dybde…', icon: Zap, score: 0 },
+  { id: 'ai-loading-7', label: 'Maskinlæsbarhed', description: 'Tester udtrækspålidelighed…', icon: Globe, score: 0 },
+];
+
+const AI_TEASE_CHECKS = AI_PLACEHOLDER_BASE.map(c => ({
+  ...c,
+  status: 'pending' as const,
+  isAI: true,
+  isLoading: false,
+}));
+
+const AI_LOADING_CHECKS = AI_PLACEHOLDER_BASE.map(c => ({
+  ...c,
+  status: 'checking' as const,
+  isAI: true,
+  isLoading: true,
+}));
+
+// Fake scores for the tease-mode radar and bar views — used only when
+// no real AI insights are available yet, so the viewer has something to
+// react to behind the CTA overlay.
+const AI_TEASE_SCORES = [72, 58, 66, 49, 63, 55, 71, 60];
+
+const AI_TEASE_RADAR_DATA = AI_PLACEHOLDER_BASE.map((c, i) => ({
+  label: c.label.length > 12 ? c.label.substring(0, 12) + '...' : c.label,
+  score: AI_TEASE_SCORES[i],
+}));
+
+const AI_TEASE_BAR_METRICS = AI_PLACEHOLDER_BASE.map((c, i) => ({
+  label: c.label,
+  score: AI_TEASE_SCORES[i],
+  status: 'warning' as const,
+  category: 'ai' as const,
+}));
 
 interface ControlPanelProps {
   isAnalyzing: boolean;
@@ -129,22 +172,17 @@ export default function ControlPanel({
   const [hasUnlockedAI, setHasUnlockedAI] = useAtom(hasUnlockedAIAtom);
   const [gateOpen, setGateOpen] = useState(false);
 
+  const inTease = showResults && !isAnalyzingAI && aiInsights.length === 0;
+
   const runAIAnalysis = useCallback(async () => {
     setIsAnalyzingAI(true);
     setShowAIAnalysis(true);
 
-    const placeholderAIChecks = [
-      { id: 'ai-loading-0', label: 'Indholdskvalitet til AI', description: 'Analyserer signalforhold i indholdet…', icon: Sparkles, status: 'checking' as const, score: 0, isAI: true, isLoading: true },
-      { id: 'ai-loading-1', label: 'Informationsarkitektur', description: 'Vurderer sidens struktur…', icon: Bot, status: 'checking' as const, score: 0, isAI: true, isLoading: true },
-      { id: 'ai-loading-2', label: 'Crawlbarhed', description: 'Tjekker JavaScript-brug…', icon: Database, status: 'checking' as const, score: 0, isAI: true, isLoading: true },
-      { id: 'ai-loading-3', label: 'Værdi for AI-træning', description: 'Vurderer træningspotentiale…', icon: Network, status: 'checking' as const, score: 0, isAI: true, isLoading: true },
-      { id: 'ai-loading-4', label: 'Vidensudtræk', description: 'Analyserer entitetsdefinitioner…', icon: FileCode, status: 'checking' as const, score: 0, isAI: true, isLoading: true },
-      { id: 'ai-loading-5', label: 'Skabelonkvalitet', description: 'Gennemgår semantisk struktur…', icon: Shield, status: 'checking' as const, score: 0, isAI: true, isLoading: true },
-      { id: 'ai-loading-6', label: 'Indholdsdybde', description: 'Måler indholdets dybde…', icon: Zap, status: 'checking' as const, score: 0, isAI: true, isLoading: true },
-      { id: 'ai-loading-7', label: 'Maskinlæsbarhed', description: 'Tester udtrækspålidelighed…', icon: Globe, status: 'checking' as const, score: 0, isAI: true, isLoading: true },
-    ];
+    // Clear any tease tiles first so the staggered loading animation
+    // starts from a clean slate.
+    setCombinedChecks(prev => prev.filter(c => !(c as any).isAI));
 
-    placeholderAIChecks.forEach((check, idx) => {
+    AI_LOADING_CHECKS.forEach((check, idx) => {
       setTimeout(() => {
         setCombinedChecks(prev => [...prev, check]);
       }, 100 * (idx + 1));
@@ -215,7 +253,11 @@ export default function ControlPanel({
         description: check.details || checks.find(c => c.id === check.id)?.description,
       }));
       setChecks(mappedChecks);
-      setCombinedChecks(mappedChecks); // Initialize with basic checks
+      // Seed the combined grid with the basic 8 + the tease placeholders
+      // so the tease overlay has something to dim underneath.
+      setCombinedChecks([...mappedChecks, ...AI_TEASE_CHECKS]);
+      setAiInsights([]);
+      setEnhancedScore(0);
       setOverallScore(analysisData.overallScore || 0);
       setCurrentCheckIndex(-1);
       
@@ -429,6 +471,133 @@ export default function ControlPanel({
     return "text-accent-black";
   };
 
+  const renderTile = (check: CheckItem, index: number) => {
+    const isActive = index === currentCheckIndex;
+
+    return (
+      <motion.div
+        key={check.id}
+        initial={(check as any).isAI ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: isActive ? 1.05 : 1 }}
+        transition={{
+          delay: (check as any).isAI ? 0 : index * 0.1,
+          scale: { type: "spring", stiffness: 300 },
+        }}
+        className={`
+          relative p-16 rounded-8 transition-all bg-accent-white border min-w-0
+          [&_*]:min-w-0
+          ${(check as any).isAI ? 'border-heat-100 border-opacity-40 bg-gradient-to-br from-accent-white to-heat-4' : 'border-black-alpha-8'}
+          ${isActive ? 'border-heat-100 shadow-lg' : ''}
+          ${check.status !== 'pending' && check.status !== 'checking' ? 'cursor-pointer hover:shadow-md' : ''}
+          ${(check as any).isLoading ? 'animate-pulse' : ''}
+        `}
+        onClick={() => {
+          if (check.status !== 'pending' && check.status !== 'checking') {
+            setSelectedCheck(selectedCheck === check.id ? null : check.id);
+          }
+        }}
+        onMouseEnter={() => setHoveredCheck(check.id)}
+        onMouseLeave={() => setHoveredCheck(null)}
+      >
+        <div className="relative">
+          <div className="flex items-start justify-end mb-12">
+            {getStatusIcon(check.status)}
+          </div>
+
+          <h3 className="text-label-large mb-4 text-accent-black font-medium flex items-center gap-6">
+            {check.label}
+            {check.tooltip && !aiInsights.some(ai => ai.id === check.id) && (
+              <div className="relative inline-block">
+                <Info className="w-14 h-14 text-black-alpha-32 hover:text-black-alpha-64 transition-colors" />
+                <AnimatePresence>
+                  {hoveredCheck === check.id && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 5 }}
+                      className="absolute bottom-full left-1/2 -translate-x-1/2 mb-8 w-200 p-8 bg-accent-black text-white text-body-x-small rounded-6 shadow-lg z-50 pointer-events-none"
+                    >
+                      {check.tooltip}
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-accent-black" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
+          </h3>
+
+          <p className="text-body-small text-black-alpha-64">
+            {check.description}
+          </p>
+
+          {check.status !== 'pending' && check.status !== 'checking' && (
+            <>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-8"
+              >
+                <div className="h-2 bg-black-alpha-4 rounded-full overflow-hidden">
+                  <motion.div
+                    className={`
+                      h-full rounded-full
+                      ${check.status === 'pass' ? 'bg-accent-black' : ''}
+                      ${check.status === 'warning' ? 'bg-heat-100' : ''}
+                      ${check.status === 'fail' ? 'bg-heat-200' : ''}
+                    `}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${check.score}%` }}
+                    transition={{ duration: 0.5 }}
+                  />
+                </div>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="text-label-x-small text-black-alpha-32 mt-4 text-center"
+              >
+                Klik for detaljer
+              </motion.div>
+            </>
+          )}
+        </div>
+
+        <AnimatePresence>
+          {selectedCheck === check.id && check.details && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="mt-12 pt-12 border-t border-black-alpha-8"
+            >
+              <div className="space-y-6 min-w-0">
+                <div className="min-w-0">
+                  <div className="text-label-small text-black-alpha-48 mb-2">Status</div>
+                  <div className="text-body-small text-accent-black break-words [overflow-wrap:anywhere]">{check.details}</div>
+                </div>
+                <div className="min-w-0">
+                  <div className="text-label-small text-black-alpha-48 mb-2">Anbefaling</div>
+                  <div className="text-body-small text-black-alpha-64 break-words [overflow-wrap:anywhere]">{check.recommendation}</div>
+                  {check.actionItems && check.actionItems.length > 0 && (
+                    <ul className="mt-4 space-y-2">
+                      {check.actionItems.map((item: string, i: number) => (
+                        <li key={i} className="flex items-start gap-6 text-body-small text-black-alpha-64 min-w-0">
+                          <span className="text-heat-100 mt-1 shrink-0">•</span>
+                          <span className="min-w-0 break-words [overflow-wrap:anywhere]">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    );
+  };
 
   return (
     <motion.div
@@ -507,138 +676,31 @@ export default function ControlPanel({
 
       {/* Conditional rendering based on view mode */}
       {viewMode === 'grid' && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 mb-40 px-40 relative">
-          {combinedChecks.map((check, index) => {
-            const isActive = index === currentCheckIndex;
-            
+        <div className="mb-40 px-40">
+          {/* Basic checks */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+            {combinedChecks
+              .filter(c => !(c as any).isAI)
+              .map((check, index) => renderTile(check, index))}
+          </div>
+
+          {/* AI checks (teased until the user unlocks) */}
+          {(() => {
+            const aiTiles = combinedChecks.filter(c => (c as any).isAI);
+            if (aiTiles.length === 0) return null;
             return (
-              <motion.div
-                key={check.id}
-                initial={(check as any).isAI ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
-                animate={{ 
-                  opacity: 1, 
-                  scale: isActive ? 1.05 : 1,
-                }}
-                transition={{ 
-                  delay: (check as any).isAI ? 0 : index * 0.1,
-                  scale: { type: "spring", stiffness: 300 }
-                }}
-                className={`
-                  relative p-16 rounded-8 transition-all bg-accent-white border min-w-0
-                  [&_*]:min-w-0
-                  ${(check as any).isAI ? 'border-heat-100 border-opacity-40 bg-gradient-to-br from-accent-white to-heat-4' : 'border-black-alpha-8'}
-                  ${isActive ? 'border-heat-100 shadow-lg' : ''}
-                  ${check.status !== 'pending' && check.status !== 'checking' ? 'cursor-pointer hover:shadow-md' : ''}
-                  ${(check as any).isLoading ? 'animate-pulse' : ''}
-                `}
-                onClick={() => {
-                  if (check.status !== 'pending' && check.status !== 'checking') {
-                    setSelectedCheck(selectedCheck === check.id ? null : check.id);
-                  }
-                }}
-                onMouseEnter={() => setHoveredCheck(check.id)}
-                onMouseLeave={() => setHoveredCheck(null)}
-              >
-                <div className="relative">
-                  <div className="flex items-start justify-end mb-12">
-                    {getStatusIcon(check.status)}
-                  </div>
-                  
-                  <h3 className="text-label-large mb-4 text-accent-black font-medium flex items-center gap-6">
-                    {check.label}
-                    {check.tooltip && !aiInsights.some(ai => ai.id === check.id) && (
-                      <div className="relative inline-block">
-                        <Info className="w-14 h-14 text-black-alpha-32 hover:text-black-alpha-64 transition-colors" />
-                        <AnimatePresence>
-                          {hoveredCheck === check.id && (
-                            <motion.div
-                              initial={{ opacity: 0, y: 5 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: 5 }}
-                              className="absolute bottom-full left-1/2 -translate-x-1/2 mb-8 w-200 p-8 bg-accent-black text-white text-body-x-small rounded-6 shadow-lg z-50 pointer-events-none"
-                            >
-                              {check.tooltip}
-                              <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-accent-black" />
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    )}
-                  </h3>
-                  
-                  <p className="text-body-small text-black-alpha-64">
-                    {check.description}
-                  </p>
-                  
-                  {check.status !== 'pending' && check.status !== 'checking' && (
-                    <>
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mt-8"
-                      >
-                        <div className="h-2 bg-black-alpha-4 rounded-full overflow-hidden">
-                          <motion.div
-                            className={`
-                              h-full rounded-full
-                              ${check.status === 'pass' ? 'bg-accent-black' : ''}
-                              ${check.status === 'warning' ? 'bg-heat-100' : ''}
-                              ${check.status === 'fail' ? 'bg-heat-200' : ''}
-                            `}
-                            initial={{ width: 0 }}
-                            animate={{ width: `${check.score}%` }}
-                            transition={{ duration: 0.5 }}
-                          />
-                        </div>
-                      </motion.div>
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.5 }}
-                        className="text-label-x-small text-black-alpha-32 mt-4 text-center"
-                      >
-                        Klik for detaljer
-                      </motion.div>
-                    </>
-                  )}
+              <div className="relative">
+                <div
+                  className={`grid grid-cols-2 lg:grid-cols-4 gap-12 transition-all ${
+                    inTease ? 'opacity-40 select-none blur-[1px] pointer-events-none' : ''
+                  }`}
+                >
+                  {aiTiles.map((check, index) => renderTile(check, index))}
                 </div>
-                
-                {/* Expanded Details */}
-                <AnimatePresence>
-                  {selectedCheck === check.id && check.details && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.2 }}
-                      className="mt-12 pt-12 border-t border-black-alpha-8"
-                    >
-                      <div className="space-y-6 min-w-0">
-                        <div className="min-w-0">
-                          <div className="text-label-small text-black-alpha-48 mb-2">Status</div>
-                          <div className="text-body-small text-accent-black break-words [overflow-wrap:anywhere]">{check.details}</div>
-                        </div>
-                        <div className="min-w-0">
-                          <div className="text-label-small text-black-alpha-48 mb-2">Anbefaling</div>
-                          <div className="text-body-small text-black-alpha-64 break-words [overflow-wrap:anywhere]">{check.recommendation}</div>
-                          {check.actionItems && check.actionItems.length > 0 && (
-                            <ul className="mt-4 space-y-2">
-                              {check.actionItems.map((item: string, i: number) => (
-                                <li key={i} className="flex items-start gap-6 text-body-small text-black-alpha-64 min-w-0">
-                                  <span className="text-heat-100 mt-1 shrink-0">•</span>
-                                  <span className="min-w-0 break-words [overflow-wrap:anywhere]">{item}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          )}
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
+                {inTease && <AITeaseCTA onClick={handleAIClick} />}
+              </div>
             );
-          })}
+          })()}
         </div>
       )}
 
@@ -670,9 +732,8 @@ export default function ControlPanel({
               </div>
             </div>
             
-            {/* VS Indicator */}
-            {aiInsights.length > 0 && (
-              <motion.div 
+            {(aiInsights.length > 0 || inTease) && (
+              <motion.div
                 className="flex items-center"
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -681,37 +742,55 @@ export default function ControlPanel({
                 <div className="text-label-large text-black-alpha-32 font-medium">MOD</div>
               </motion.div>
             )}
-            
-            {/* AI Analysis Chart - Only show if AI insights exist */}
-            {aiInsights.length > 0 && (
-              <motion.div 
-                className="flex flex-col items-center"
+
+            {/* AI Analysis Chart — rendered with real data when unlocked,
+                with synthetic tease data when locked. */}
+            {(aiInsights.length > 0 || inTease) && (
+              <motion.div
+                className="flex flex-col items-center relative"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
               >
                 <h3 className="text-label-large text-heat-100 mb-16 font-medium">AI-forbedret analyse</h3>
-                <RadarChart 
-                  data={aiInsights
-                    .filter(check => check.status !== 'pending' && check.status !== 'checking')
-                    .slice(0, 8)
-                    .map(check => ({
-                      label: check.label.length > 12 ? check.label.substring(0, 12) + '...' : check.label,
-                      score: check.score || 0
-                    }))}
-                  size={350}
-                />
-                <div className="mt-16 text-center">
-                  <div className="text-title-h3 text-heat-100">
-                    {Math.round(aiInsights.reduce((sum, check) => sum + (check.score || 0), 0) / aiInsights.length)}%
+                <div
+                  className={`transition-all ${
+                    inTease ? 'opacity-40 select-none blur-[1px] pointer-events-none' : ''
+                  }`}
+                >
+                  <RadarChart
+                    data={
+                      inTease
+                        ? AI_TEASE_RADAR_DATA
+                        : aiInsights
+                            .filter(check => check.status !== 'pending' && check.status !== 'checking')
+                            .slice(0, 8)
+                            .map(check => ({
+                              label: check.label.length > 12 ? check.label.substring(0, 12) + '...' : check.label,
+                              score: check.score || 0,
+                            }))
+                    }
+                    size={350}
+                  />
+                  <div className="mt-16 text-center">
+                    <div className="text-title-h3 text-heat-100">
+                      {inTease
+                        ? Math.round(
+                            AI_TEASE_SCORES.reduce((a, b) => a + b, 0) / AI_TEASE_SCORES.length,
+                          )
+                        : Math.round(
+                            aiInsights.reduce((sum, check) => sum + (check.score || 0), 0) / aiInsights.length,
+                          )}
+                      %
+                    </div>
+                    <div className="text-label-small text-heat-100 opacity-60">AI-score</div>
                   </div>
-                  <div className="text-label-small text-heat-100 opacity-60">AI-score</div>
                 </div>
+                {inTease && <AITeaseCTA onClick={handleAIClick} />}
               </motion.div>
             )}
           </motion.div>
-          
-          {/* Comparison Summary */}
+
           {aiInsights.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -731,26 +810,51 @@ export default function ControlPanel({
 
       {/* Bar Chart View */}
       {viewMode === 'bars' && showResults && (
-        <motion.div 
+        <motion.div
           className="px-40 mb-40"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <MetricBars 
+          <MetricBars
             metrics={combinedChecks
               .filter(check => check.status !== 'pending' && check.status !== 'checking')
+              .filter(check => !(check as any).isAI)
               .map(check => ({
                 label: check.label,
                 score: check.score || 0,
                 status: check.status as 'pass' | 'warning' | 'fail',
-                category: (check as any).isAI ? 'ai' : 
-                  ['robots-txt', 'sitemap', 'llms-txt'].includes(check.id) ? 'domain' : 'page',
+                category: ['robots-txt', 'sitemap', 'llms-txt'].includes(check.id) ? 'domain' : 'page',
                 details: check.details,
                 recommendation: check.recommendation,
-                actionItems: check.actionItems
+                actionItems: check.actionItems,
               }))}
           />
+
+          {inTease && (
+            <div className="relative mt-40">
+              <div className="opacity-40 select-none blur-[1px] pointer-events-none">
+                <MetricBars metrics={AI_TEASE_BAR_METRICS} />
+              </div>
+              <AITeaseCTA onClick={handleAIClick} />
+            </div>
+          )}
+
+          {aiInsights.length > 0 && (
+            <div className="mt-40">
+              <MetricBars
+                metrics={aiInsights.map(check => ({
+                  label: check.label,
+                  score: check.score || 0,
+                  status: check.status as 'pass' | 'warning' | 'fail',
+                  category: 'ai' as const,
+                  details: check.details,
+                  recommendation: check.recommendation,
+                  actionItems: check.actionItems,
+                }))}
+              />
+            </div>
+          )}
         </motion.div>
       )}
 
@@ -767,13 +871,6 @@ export default function ControlPanel({
             className="px-20 py-10 bg-accent-white border border-black-alpha-8 hover:bg-black-alpha-4 rounded-8 text-label-medium transition-all"
           >
             Analysér en anden side
-          </button>
-          <button
-            onClick={handleAIClick}
-            disabled={isAnalyzingAI}
-            className="px-20 py-10 bg-accent-black hover:bg-black-alpha-80 text-white rounded-8 text-label-medium transition-all disabled:opacity-50"
-          >
-            {isAnalyzingAI ? 'Analyserer…' : 'Analysér med AI'}
           </button>
         </motion.div>
       )}

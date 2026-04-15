@@ -30,6 +30,7 @@ import HeaderWrapper from "@/components/shared/header/Wrapper/Wrapper";
 import HeaderDropdownWrapper from "@/components/shared/header/Dropdown/Wrapper/Wrapper";
 import Image from "next/image";
 import ButtonUI from "@/components/ui/shadcn/button";
+import ErrorModal from "@/components/shared/error-modal/ErrorModal";
 
 export default function StyleGuidePage() {
   const [tab, setTab] = useState<Endpoint>(Endpoint.Scrape);
@@ -40,6 +41,7 @@ export default function StyleGuidePage() {
   const [analysisData, setAnalysisData] = useState<any>(null);
   const [hasOpenAIKey, setHasOpenAIKey] = useState(false);
   const [urlError, setUrlError] = useState<string>("");
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
   
   // Check for API keys on mount
   useEffect(() => {
@@ -107,12 +109,18 @@ export default function StyleGuidePage() {
       } else {
         console.error('Analysis failed:', data.error);
         setIsAnalyzing(false);
-        alert('Kunne ikke analysere siden. Tjek URL\'en og prøv igen.');
+        setShowResults(false);
+        setAnalysisError(
+          'Vi kunne desværre ikke finde en hjemmeside med den URL. Tjek om du har skrevet den korrekt, og prøv igen.'
+        );
       }
     } catch (error) {
       console.error('Analysis error:', error);
       setIsAnalyzing(false);
-      alert('Der opstod en fejl under analysen.');
+      setShowResults(false);
+      setAnalysisError(
+        'Der opstod en fejl under analysen. Prøv igen om et øjeblik.'
+      );
     }
   };
 
@@ -303,6 +311,13 @@ export default function StyleGuidePage() {
           )}
         </section>
       </div>
+
+      <ErrorModal
+        isOpen={analysisError !== null}
+        title="Vi fandt ikke siden"
+        message={analysisError ?? ''}
+        onClose={() => setAnalysisError(null)}
+      />
     </HeaderProvider>
   );
 }
