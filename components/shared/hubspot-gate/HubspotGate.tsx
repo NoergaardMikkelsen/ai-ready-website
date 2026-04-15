@@ -174,7 +174,7 @@ export default function HubspotGate({
               exit={{ opacity: 0 }}
             />
             <motion.div
-              className="relative bg-accent-white rounded-16 w-full max-w-[680px] p-40 z-[1] shadow-2xl max-h-[90vh] overflow-y-auto"
+              className="relative bg-accent-white rounded-16 w-full max-w-[680px] p-20 md:p-40 z-[1] shadow-2xl max-h-[92vh] overflow-y-auto"
               initial={{ opacity: 0, y: 20, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.98 }}
@@ -196,10 +196,10 @@ export default function HubspotGate({
                 </svg>
               </button>
 
-              <h2 className="text-title-h5 text-accent-black mb-8 pr-32">
+              <h2 className="text-title-h5 text-accent-black mb-8 pr-32 break-words">
                 Lås den fulde AI-analyse op
               </h2>
-              <p className="text-body-medium text-black-alpha-64 mb-24">
+              <p className="text-body-small md:text-body-medium text-black-alpha-64 mb-20 md:mb-24">
                 Indtast dine kontaktoplysninger, så låser vi den dybdegående
                 AI-analyse af{" "}
                 <span className="text-accent-black font-medium break-all">

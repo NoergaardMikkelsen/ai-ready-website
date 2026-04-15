@@ -124,7 +124,7 @@ export default function MetricBars({ metrics }: MetricBarsProps) {
                   transition={{ duration: 0.3 }}
                   className="overflow-hidden"
                 >
-                  <div className="pl-54 pr-12 py-12 space-y-8">
+                  <div className="pl-20 md:pl-54 pr-12 py-12 space-y-8">
                     <div>
                       <div className="text-label-small text-black-alpha-48 mb-4">Status</div>
                       <div className="text-body-small text-accent-black">{metric.details}</div>

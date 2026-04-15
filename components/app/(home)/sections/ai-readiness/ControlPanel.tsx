@@ -605,7 +605,7 @@ export default function ControlPanel({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.5 }}
-      className="w-full max-w-[1440px] mx-auto"
+      className="w-full max-w-[1440px] mx-auto px-16 md:px-24"
     >
       {/* Header */}
       <motion.div 
@@ -614,8 +614,12 @@ export default function ControlPanel({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <h2 className="text-title-h2 text-accent-black mb-12">AI-parathedsanalyse</h2>
-        <p className="text-body-large text-black-alpha-64">Øjebliksbillede af én side: {url}</p>
+        <h2 className="text-title-h4 md:text-title-h3 lg:text-title-h2 text-accent-black mb-12 break-words px-16">
+          AI-parathedsanalyse
+        </h2>
+        <p className="text-body-medium md:text-body-large text-black-alpha-64 break-all md:break-words px-16">
+          Øjebliksbillede af én side: {url}
+        </p>
         
         {showResults && (
           <>
@@ -624,11 +628,11 @@ export default function ControlPanel({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="mt-24 mb-20 flex justify-center gap-4"
+              className="mt-24 mb-20 flex flex-wrap justify-center gap-4"
             >
               <button
                 onClick={() => setViewMode('grid')}
-                className={`px-16 py-8 rounded-8 text-label-medium font-medium transition-all ${
+                className={`px-10 py-6 md:px-16 md:py-8 rounded-8 text-label-small md:text-label-medium font-medium transition-all ${
                   viewMode === 'grid' 
                     ? 'bg-accent-black text-white shadow-md' 
                     : 'bg-black-alpha-4 text-black-alpha-64 hover:bg-black-alpha-8'
@@ -638,7 +642,7 @@ export default function ControlPanel({
               </button>
               <button
                 onClick={() => setViewMode('chart')}
-                className={`px-16 py-8 rounded-8 text-label-medium font-medium transition-all ${
+                className={`px-10 py-6 md:px-16 md:py-8 rounded-8 text-label-small md:text-label-medium font-medium transition-all ${
                   viewMode === 'chart' 
                     ? 'bg-accent-black text-white shadow-md' 
                     : 'bg-black-alpha-4 text-black-alpha-64 hover:bg-black-alpha-8'
@@ -648,7 +652,7 @@ export default function ControlPanel({
               </button>
               <button
                 onClick={() => setViewMode('bars')}
-                className={`px-16 py-8 rounded-8 text-label-medium font-medium transition-all ${
+                className={`px-10 py-6 md:px-16 md:py-8 rounded-8 text-label-small md:text-label-medium font-medium transition-all ${
                   viewMode === 'bars' 
                     ? 'bg-accent-black text-white shadow-md' 
                     : 'bg-black-alpha-4 text-black-alpha-64 hover:bg-black-alpha-8'
@@ -676,9 +680,9 @@ export default function ControlPanel({
 
       {/* Conditional rendering based on view mode */}
       {viewMode === 'grid' && (
-        <div className="mb-40 px-40">
+        <div className="mb-40 px-0 md:px-40">
           {/* Basic checks */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
             {combinedChecks
               .filter(c => !(c as any).isAI)
               .map((check, index) => renderTile(check, index))}
@@ -691,8 +695,8 @@ export default function ControlPanel({
             return (
               <div className="relative">
                 <div
-                  className={`grid grid-cols-2 lg:grid-cols-4 gap-12 transition-all ${
-                    inTease ? 'opacity-40 select-none blur-[1px] pointer-events-none' : ''
+                  className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 transition-all ${
+                    inTease ? 'opacity-40 select-none blur-[1px] pointer-events-none max-h-[480px] md:max-h-none overflow-hidden' : ''
                   }`}
                 >
                   {aiTiles.map((check, index) => renderTile(check, index))}
@@ -707,8 +711,8 @@ export default function ControlPanel({
       {/* Radar Chart View */}
       {viewMode === 'chart' && showResults && (
         <div>
-          <motion.div 
-            className="flex justify-center gap-40 mb-40"
+          <motion.div
+            className="flex flex-col lg:flex-row justify-center items-center gap-24 lg:gap-40 mb-40"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
@@ -811,7 +815,7 @@ export default function ControlPanel({
       {/* Bar Chart View */}
       {viewMode === 'bars' && showResults && (
         <motion.div
-          className="px-40 mb-40"
+          className="px-0 md:px-40 mb-40"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}

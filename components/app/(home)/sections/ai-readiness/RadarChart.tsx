@@ -43,9 +43,25 @@ export default function RadarChart({ data, size = 300 }: RadarChartProps) {
   // Grid levels
   const gridLevels = [20, 40, 60, 80, 100];
   
+  // Expand the viewBox so labels that sit outside the chart's radius (at
+  // `radius + 40`, plus any text width on left/right) render INSIDE the
+  // SVG's own box. Without this, labels leak outside the responsive
+  // layout and clip the page on mobile.
+  const labelMarginX = 70;
+  const labelMarginY = 30;
+  const vbX = -labelMarginX;
+  const vbY = -labelMarginY;
+  const vbW = size + labelMarginX * 2;
+  const vbH = size + labelMarginY * 2;
+
   return (
-    <div className="relative">
-      <svg width={size} height={size} className="overflow-visible">
+    <div className="relative w-full max-w-full" style={{ maxWidth: size + labelMarginX * 2 }}>
+      <svg
+        viewBox={`${vbX} ${vbY} ${vbW} ${vbH}`}
+        width="100%"
+        height="auto"
+        className="block w-full h-auto"
+      >
         <defs>
           <linearGradient id="radar-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#df475b" stopOpacity="0.8" />

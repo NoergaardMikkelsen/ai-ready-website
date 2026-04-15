@@ -9,12 +9,12 @@ type Props = {
 
 export default function AITeaseCTA({ onClick }: Props) {
   return (
-    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[5] px-16">
+    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[5] px-16 py-16">
       <motion.div
         initial={{ opacity: 0, y: 12, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ delay: 0.4, duration: 0.4, ease: "easeOut" }}
-        className="pointer-events-auto bg-accent-white rounded-16 shadow-2xl border border-black-alpha-8 max-w-[440px] w-full p-32 text-center"
+        className="pointer-events-auto bg-accent-white rounded-16 shadow-2xl border border-black-alpha-8 max-w-[440px] w-full p-24 md:p-32 text-center"
       >
         <div className="mx-auto mb-16 size-56 rounded-full bg-heat-8 flex-center">
           <Sparkles className="w-24 h-24 text-heat-100" />
