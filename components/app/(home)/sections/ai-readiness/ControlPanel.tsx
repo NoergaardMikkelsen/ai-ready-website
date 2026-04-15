@@ -21,10 +21,13 @@ import {
   Info,
   Eye
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useAtom } from "jotai";
 import ScoreChart from "./ScoreChart";
 import RadarChart from "./RadarChart";
 import MetricBars from "./MetricBars";
+import HubspotGate from "@/components/shared/hubspot-gate/HubspotGate";
+import { hasUnlockedAIAtom } from "@/atoms/gate";
 
 interface ControlPanelProps {
   isAnalyzing: boolean;
@@ -123,6 +126,85 @@ export default function ControlPanel({
   const [hoveredCheck, setHoveredCheck] = useState<string | null>(null);
   const [enhancedScore, setEnhancedScore] = useState(0);
   const [viewMode, setViewMode] = useState<'grid' | 'chart' | 'bars'>('grid');
+  const [hasUnlockedAI, setHasUnlockedAI] = useAtom(hasUnlockedAIAtom);
+  const [gateOpen, setGateOpen] = useState(false);
+
+  const runAIAnalysis = useCallback(async () => {
+    setIsAnalyzingAI(true);
+    setShowAIAnalysis(true);
+
+    const placeholderAIChecks = [
+      { id: 'ai-loading-0', label: 'Indholdskvalitet til AI', description: 'Analyserer signalforhold i indholdet…', icon: Sparkles, status: 'checking' as const, score: 0, isAI: true, isLoading: true },
+      { id: 'ai-loading-1', label: 'Informationsarkitektur', description: 'Vurderer sidens struktur…', icon: Bot, status: 'checking' as const, score: 0, isAI: true, isLoading: true },
+      { id: 'ai-loading-2', label: 'Crawlbarhed', description: 'Tjekker JavaScript-brug…', icon: Database, status: 'checking' as const, score: 0, isAI: true, isLoading: true },
+      { id: 'ai-loading-3', label: 'Værdi for AI-træning', description: 'Vurderer træningspotentiale…', icon: Network, status: 'checking' as const, score: 0, isAI: true, isLoading: true },
+      { id: 'ai-loading-4', label: 'Vidensudtræk', description: 'Analyserer entitetsdefinitioner…', icon: FileCode, status: 'checking' as const, score: 0, isAI: true, isLoading: true },
+      { id: 'ai-loading-5', label: 'Skabelonkvalitet', description: 'Gennemgår semantisk struktur…', icon: Shield, status: 'checking' as const, score: 0, isAI: true, isLoading: true },
+      { id: 'ai-loading-6', label: 'Indholdsdybde', description: 'Måler indholdets dybde…', icon: Zap, status: 'checking' as const, score: 0, isAI: true, isLoading: true },
+      { id: 'ai-loading-7', label: 'Maskinlæsbarhed', description: 'Tester udtrækspålidelighed…', icon: Globe, status: 'checking' as const, score: 0, isAI: true, isLoading: true },
+    ];
+
+    placeholderAIChecks.forEach((check, idx) => {
+      setTimeout(() => {
+        setCombinedChecks(prev => [...prev, check]);
+      }, 100 * (idx + 1));
+    });
+
+    try {
+      const response = await fetch('/api/ai-analysis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url,
+          htmlContent: analysisData?.htmlContent || '',
+          currentChecks: checks,
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success && data.insights) {
+        const aiChecks: CheckItem[] = data.insights.map((insight: any, idx: number) => ({
+          ...insight,
+          icon: [Sparkles, Bot, Database, Network, FileCode, Shield, Zap, Globe][idx % 8],
+          description: insight.details?.substring(0, 60) + '...' || 'AI-analyse',
+          isAI: true,
+        }));
+
+        setAiInsights(aiChecks);
+
+        setCombinedChecks(prev => {
+          const withoutLoading = prev.filter(c => !(c as any).isLoading);
+          return [...withoutLoading, ...aiChecks];
+        });
+
+        if (data.insights.length > 0) {
+          const aiScores = data.insights.map((i: any) => i.score || 0);
+          const avgAiScore = aiScores.reduce((a: number, b: number) => a + b, 0) / aiScores.length;
+          const combinedScore = Math.round((overallScore * 0.6) + (avgAiScore * 0.4));
+          setEnhancedScore(combinedScore);
+        }
+      }
+    } catch (error) {
+      console.error('AI analysis error:', error);
+      setCombinedChecks(prev => prev.filter(c => !(c as any).isLoading));
+    } finally {
+      setIsAnalyzingAI(false);
+    }
+  }, [url, analysisData, checks, overallScore]);
+
+  const handleAIClick = useCallback(() => {
+    if (hasUnlockedAI) {
+      runAIAnalysis();
+    } else {
+      setGateOpen(true);
+    }
+  }, [hasUnlockedAI, runAIAnalysis]);
+
+  const handleGateSuccess = useCallback(() => {
+    setHasUnlockedAI(true);
+    setGateOpen(false);
+    runAIAnalysis();
+  }, [runAIAnalysis, setHasUnlockedAI]);
 
   useEffect(() => {
     if (analysisData && analysisData.checks && showResults) {
@@ -686,158 +768,22 @@ export default function ControlPanel({
           >
             Analysér en anden side
           </button>
-          {true && ( 
-            <button 
-              onClick={async () => {
-              setIsAnalyzingAI(true);
-              setShowAIAnalysis(true);
-              
-              // Add placeholder AI tiles immediately with actual titles
-              const placeholderAIChecks = [
-                {
-                  id: 'ai-loading-0',
-                  label: 'Indholdskvalitet til AI',
-                  description: 'Analyserer signalforhold i indholdet…',
-                  icon: Sparkles,
-                  status: 'checking' as const,
-                  score: 0,
-                  isAI: true,
-                  isLoading: true
-                },
-                {
-                  id: 'ai-loading-1',
-                  label: 'Informationsarkitektur',
-                  description: 'Vurderer sidens struktur…',
-                  icon: Bot,
-                  status: 'checking' as const,
-                  score: 0,
-                  isAI: true,
-                  isLoading: true
-                },
-                {
-                  id: 'ai-loading-2',
-                  label: 'Crawlbarhed',
-                  description: 'Tjekker JavaScript-brug…',
-                  icon: Database,
-                  status: 'checking' as const,
-                  score: 0,
-                  isAI: true,
-                  isLoading: true
-                },
-                {
-                  id: 'ai-loading-3',
-                  label: 'Værdi for AI-træning',
-                  description: 'Vurderer træningspotentiale…',
-                  icon: Network,
-                  status: 'checking' as const,
-                  score: 0,
-                  isAI: true,
-                  isLoading: true
-                },
-                {
-                  id: 'ai-loading-4',
-                  label: 'Vidensudtræk',
-                  description: 'Analyserer entitetsdefinitioner…',
-                  icon: FileCode,
-                  status: 'checking' as const,
-                  score: 0,
-                  isAI: true,
-                  isLoading: true
-                },
-                {
-                  id: 'ai-loading-5',
-                  label: 'Skabelonkvalitet',
-                  description: 'Gennemgår semantisk struktur…',
-                  icon: Shield,
-                  status: 'checking' as const,
-                  score: 0,
-                  isAI: true,
-                  isLoading: true
-                },
-                {
-                  id: 'ai-loading-6',
-                  label: 'Indholdsdybde',
-                  description: 'Måler indholdets dybde…',
-                  icon: Zap,
-                  status: 'checking' as const,
-                  score: 0,
-                  isAI: true,
-                  isLoading: true
-                },
-                {
-                  id: 'ai-loading-7',
-                  label: 'Maskinlæsbarhed',
-                  description: 'Tester udtrækspålidelighed…',
-                  icon: Globe,
-                  status: 'checking' as const,
-                  score: 0,
-                  isAI: true,
-                  isLoading: true
-                }
-              ];
-              
-              // Add loading AI tiles with staggered animation immediately
-              placeholderAIChecks.forEach((check, idx) => {
-                setTimeout(() => {
-                  setCombinedChecks(prev => [...prev, check]);
-                }, 100 * (idx + 1));
-              });
-              
-              try {
-                const response = await fetch('/api/ai-analysis', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    url,
-                    htmlContent: analysisData?.htmlContent || '',
-                    currentChecks: checks
-                  })
-                });
-                
-                const data = await response.json();
-                if (data.success && data.insights) {
-                  // Convert AI insights to CheckItem format with AI flag
-                  const aiChecks: CheckItem[] = data.insights.map((insight: any, idx: number) => ({
-                    ...insight,
-                    icon: [Sparkles, Bot, Database, Network, FileCode, Shield, Zap, Globe][idx % 8],
-                    description: insight.details?.substring(0, 60) + '...' || 'AI-analyse',
-                    isAI: true, // Mark as AI-generated
-                  }));
-                  
-                  setAiInsights(aiChecks);
-                  
-                  // Replace loading tiles with real AI tiles
-                  setCombinedChecks(prev => {
-                    // Remove loading tiles
-                    const withoutLoading = prev.filter(c => !(c as any).isLoading);
-                    // Add real AI tiles
-                    return [...withoutLoading, ...aiChecks];
-                  });
-                  
-                  // Calculate enhanced score
-                  if (data.insights.length > 0) {
-                    const aiScores = data.insights.map((i: any) => i.score || 0);
-                    const avgAiScore = aiScores.reduce((a: number, b: number) => a + b, 0) / aiScores.length;
-                    const combinedScore = Math.round((overallScore * 0.6) + (avgAiScore * 0.4));
-                    setEnhancedScore(combinedScore);
-                  }
-                }
-              } catch (error) {
-                console.error('AI analysis error:', error);
-                // Remove loading tiles on error
-                setCombinedChecks(prev => prev.filter(c => !(c as any).isLoading));
-              } finally {
-                setIsAnalyzingAI(false);
-              }
-            }}
+          <button
+            onClick={handleAIClick}
             disabled={isAnalyzingAI}
             className="px-20 py-10 bg-accent-black hover:bg-black-alpha-80 text-white rounded-8 text-label-medium transition-all disabled:opacity-50"
           >
-              {isAnalyzingAI ? 'Analyserer…' : 'Analysér med AI'}
-            </button>
-          )}
+            {isAnalyzingAI ? 'Analyserer…' : 'Analysér med AI'}
+          </button>
         </motion.div>
       )}
+
+      <HubspotGate
+        isOpen={gateOpen}
+        onClose={() => setGateOpen(false)}
+        onSuccess={handleGateSuccess}
+        websiteUrl={url}
+      />
     </motion.div>
   );
 }

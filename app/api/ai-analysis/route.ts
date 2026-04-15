@@ -11,34 +11,22 @@ interface AIAnalysisRequest {
   currentChecks: any[];
 }
 
-async function generateAIInsights(url: string, htmlContent: string, currentChecks: any[]) {
-  // Try Groq first since OpenAI has quota issues
-  return generateGroqInsights(url, htmlContent, currentChecks);
-}
+const SYSTEM_PROMPT =
+  'Du er en ekspert i AI-parathed, der analyserer hjemmesider i ALLE brancher (e-handel, nyheder, uddannelse, sundhed, erhverv osv.). KRITISK KRAV: ALT output skal være på dansk — alle label, details, recommendation og actionItems MÅ IKKE indeholde engelsk tekst. Brug danske tegn (æ, ø, å). Tekniske udtryk som HTML, schema, robots.txt må gerne bevares på engelsk, men beskrivelser, anbefalinger og handlingspunkter skal formuleres på dansk. Vær konkret med eksempler, der passer til sidetypen.';
 
-async function generateGroqInsights(url: string, htmlContent: string, currentChecks: any[]) {
-  try {
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'moonshotai/kimi-k2-instruct',
-        messages: [
-          {
-            role: 'system',
-            content: 'Du er en ekspert i AI-parathed, der analyserer hjemmesider i ALLE brancher (e-handel, nyheder, uddannelse, sundhed, erhverv osv.). KRITISK KRAV: ALT output skal være på dansk — alle label, details, recommendation og actionItems MÅ IKKE indeholde engelsk tekst. Brug danske tegn (æ, ø, å). Tekniske udtryk som HTML, schema, robots.txt må gerne bevares på engelsk, men beskrivelser, anbefalinger og handlingspunkter skal formuleres på dansk. Vær konkret med eksempler, der passer til sidetypen.'
-          },
-          {
-            role: 'user',
-            content: `Analysér denne hjemmeside for AI-parathed. Det kan være ALLE typer af sider — tilpas din analyse. SVAR UDELUKKENDE PÅ DANSK.
+function buildUserPrompt(url: string, currentChecks: any[]) {
+  const pageScores = JSON.stringify(
+    currentChecks
+      .filter(c => ['readability', 'heading-structure', 'meta-tags'].includes(c.id))
+      .map(c => c.label + ': ' + c.score)
+  );
+
+  return `Analysér denne hjemmeside for AI-parathed. Det kan være ALLE typer af sider — tilpas din analyse. SVAR UDELUKKENDE PÅ DANSK.
 
 URL: ${url}
-Side-scores: ${JSON.stringify(currentChecks.filter(c => ['readability', 'heading-structure', 'meta-tags'].includes(c.id)).map(c => c.label + ': ' + c.score))}
+Side-scores: ${pageScores}
 
-Analysér disse universelle AI-parathedsfaktorer (brug disse danske labels):
+Analysér disse universelle AI-parathedsfaktorer (brug disse danske labels og id'er):
 1. Indholdskvalitet til AI (content-quality) — Er indholdet klart, faktuelt og værdifuldt for AI-træning?
 2. Informationsarkitektur (info-architecture) — Hvor godt organiseret og kategoriseret er informationen?
 3. Semantisk struktur (semantic-structure) — Beskriver HTML'en korrekt indholdets betydning?
@@ -48,34 +36,79 @@ Analysér disse universelle AI-parathedsfaktorer (brug disse danske labels):
 7. Indholdets unikhed (content-uniqueness) — Er dette originalt indhold eller tyndt/dubleret?
 8. Maskinfortolkbarhed (machine-interpretability) — Hvor let kan AI parse og forstå dette?
 
-Tilpas analysen til sidetypen (e-handel fokuserer på produktdata, nyheder på artikelstruktur osv.).
-Returnér JSON med et insights-array, der for hvert område indeholder {id, label, score(0-100), status(pass/warning/fail), details, recommendation, actionItems(array med 5 konkrete handlinger)}. ALLE tekstfelter SKAL være på dansk.`
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 2000
-      })
+Tilpas analysen til sidetypen (e-handel fokuserer på produktdata, nyheder på artikelstruktur osv.). Returnér præcis 8 insights — ét pr. område ovenfor. For hvert område skal actionItems indeholde 5 konkrete, handlingsrettede trin på dansk. ALLE tekstfelter SKAL være på dansk.`;
+}
+
+const INSIGHT_ITEM_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['id', 'label', 'score', 'status', 'details', 'recommendation', 'actionItems'],
+  properties: {
+    id: { type: 'string' },
+    label: { type: 'string' },
+    score: { type: 'integer', minimum: 0, maximum: 100 },
+    status: { type: 'string', enum: ['pass', 'warning', 'fail'] },
+    details: { type: 'string' },
+    recommendation: { type: 'string' },
+    actionItems: {
+      type: 'array',
+      items: { type: 'string' },
+      minItems: 5,
+      maxItems: 5,
+    },
+  },
+} as const;
+
+const INSIGHTS_JSON_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['insights', 'overallAIReadiness', 'topPriorities'],
+  properties: {
+    insights: {
+      type: 'array',
+      minItems: 8,
+      maxItems: 8,
+      items: INSIGHT_ITEM_SCHEMA,
+    },
+    overallAIReadiness: { type: 'string' },
+    topPriorities: {
+      type: 'array',
+      items: { type: 'string' },
+      minItems: 3,
+      maxItems: 3,
+    },
+  },
+} as const;
+
+async function generateAIInsights(url: string, htmlContent: string, currentChecks: any[]) {
+  try {
+    const response = await openai.responses.create({
+      model: 'gpt-5.4-mini',
+      reasoning: { effort: 'low' },
+      max_output_tokens: 4000,
+      input: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: buildUserPrompt(url, currentChecks) },
+      ],
+      text: {
+        format: {
+          type: 'json_schema',
+          name: 'ai_readiness_insights',
+          strict: true,
+          schema: INSIGHTS_JSON_SCHEMA,
+        },
+      },
     });
 
-    const data = await response.json();
-    if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
-      let content = data.choices[0].message.content;
-      // Remove markdown code blocks if present
-      content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      try {
-        return JSON.parse(content);
-      } catch (parseError) {
-        console.error('Failed to parse Groq response:', parseError);
-        console.log('Raw content:', content.substring(0, 200));
-        return generateMockInsights(url);
-      }
-    } else {
-      console.error('Invalid Groq response format:', data);
+    const text = response.output_text;
+    if (!text) {
+      console.error('OpenAI returned empty output_text');
       return generateMockInsights(url);
     }
+
+    return JSON.parse(text);
   } catch (error) {
-    console.error('Groq API error:', error);
-    // Return mock data if both APIs fail
+    console.error('OpenAI API error:', error);
     return generateMockInsights(url);
   }
 }
