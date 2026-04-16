@@ -28,6 +28,7 @@ import RadarChart from "./RadarChart";
 import MetricBars from "./MetricBars";
 import HubspotGate from "@/components/shared/hubspot-gate/HubspotGate";
 import AITeaseCTA from "@/components/shared/ai-tease-cta/AITeaseCTA";
+import DetailDrawer from "@/components/shared/detail-drawer/DetailDrawer";
 import { hasUnlockedAIAtom } from "@/atoms/gate";
 
 const AI_PLACEHOLDER_BASE = [
@@ -165,7 +166,7 @@ export default function ControlPanel({
 
   const [overallScore, setOverallScore] = useState(0);
   const [currentCheckIndex, setCurrentCheckIndex] = useState(-1);
-  const [selectedCheck, setSelectedCheck] = useState<string | null>(null);
+  const [selectedCheck, setSelectedCheck] = useState<CheckItem | null>(null);
   const [hoveredCheck, setHoveredCheck] = useState<string | null>(null);
   const [enhancedScore, setEnhancedScore] = useState(0);
   const [viewMode, setViewMode] = useState<'grid' | 'chart' | 'bars'>('grid');
@@ -493,7 +494,7 @@ export default function ControlPanel({
         `}
         onClick={() => {
           if (check.status !== 'pending' && check.status !== 'checking') {
-            setSelectedCheck(selectedCheck === check.id ? null : check.id);
+            setSelectedCheck(check);
           }
         }}
         onMouseEnter={() => setHoveredCheck(check.id)}
@@ -563,45 +564,6 @@ export default function ControlPanel({
           )}
         </div>
 
-        <AnimatePresence>
-          {selectedCheck === check.id && check.details && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.25 }}
-              className="overflow-hidden"
-            >
-              <div className="mt-12 pt-12 pb-4 space-y-10 border-t border-black-alpha-8">
-                {check.details && (
-                  <div>
-                    <div className="text-label-x-small text-black-alpha-32 uppercase tracking-wider mb-4">Status</div>
-                    <div className="text-body-small text-accent-black break-words [overflow-wrap:anywhere] leading-relaxed">{check.details}</div>
-                  </div>
-                )}
-                {check.recommendation && (
-                  <div>
-                    <div className="text-label-x-small text-black-alpha-32 uppercase tracking-wider mb-4">Anbefaling</div>
-                    <div className="text-body-small text-black-alpha-64 break-words [overflow-wrap:anywhere] leading-relaxed">{check.recommendation}</div>
-                  </div>
-                )}
-                {check.actionItems && check.actionItems.length > 0 && (
-                  <div>
-                    <div className="text-label-x-small text-black-alpha-32 uppercase tracking-wider mb-6">Handlingspunkter</div>
-                    <ul className="space-y-4">
-                      {check.actionItems.map((item: string, i: number) => (
-                        <li key={i} className="flex items-start gap-8 text-body-small text-black-alpha-64">
-                          <span className="mt-[5px] w-5 h-5 rounded-full bg-heat-100 flex-shrink-0" />
-                          <span className="break-words [overflow-wrap:anywhere]">{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </motion.div>
     );
   };
@@ -874,6 +836,11 @@ export default function ControlPanel({
         onClose={() => setGateOpen(false)}
         onSuccess={handleGateSuccess}
         websiteUrl={url}
+      />
+
+      <DetailDrawer
+        check={selectedCheck}
+        onClose={() => setSelectedCheck(null)}
       />
 
     </motion.div>
