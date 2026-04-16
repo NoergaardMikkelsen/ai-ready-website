@@ -42,6 +42,7 @@ export default function StyleGuidePage() {
   const [hasOpenAIKey, setHasOpenAIKey] = useState(false);
   const [urlError, setUrlError] = useState<string>("");
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const isInitialView = !isAnalyzing && !showResults;
   
   // Check for API keys on mount
   useEffect(() => {
@@ -126,7 +127,7 @@ export default function StyleGuidePage() {
 
   return (
     <HeaderProvider>
-      <div className="min-h-screen bg-background-base">
+      <div className={`bg-background-base ${isInitialView ? 'h-screen overflow-hidden' : 'min-h-screen'}`}>
         {/* Header/Navigation Section */}
         <HeaderDropdownWrapper />
         
@@ -170,8 +171,18 @@ export default function StyleGuidePage() {
         </div>
 
         {/* Hero Section */}
-        <section className="overflow-x-clip" id="home-hero">
-          <div className={`pt-28 lg:pt-254 lg:-mt-100 pb-115 relative ${isAnalyzing || showResults ? '' : ''}`} id="hero-content">
+        <section
+          className={`overflow-x-clip ${isInitialView ? 'h-[calc(100vh-81px)] overflow-y-hidden' : ''}`}
+          id="home-hero"
+        >
+          <div
+            className={`relative ${
+              isInitialView
+                ? 'pt-28 lg:pt-220 lg:-mt-90 pb-72'
+                : 'pt-28 lg:pt-254 lg:-mt-100 pb-115'
+            }`}
+            id="hero-content"
+          >
             <HomeHeroPixi />
             <HeroFlame />
             <BackgroundOuterPiece />
@@ -199,7 +210,7 @@ export default function StyleGuidePage() {
                     href="#"
                     onClick={(e) => e.preventDefault()}
                   >
-                    Drevet af Nørgaard Mikkelsen.
+                    Drevet af Nørgård Mikkelsen.
                   </Link>
                 </motion.div>
               ) : (
@@ -230,9 +241,9 @@ export default function StyleGuidePage() {
           </div>
           
           {/* Mini Playground Input - Only show when not analyzing */}
-          {!isAnalyzing && !showResults && (
+          {isInitialView && (
             <motion.div 
-              className="container lg:contents !p-16 relative -mt-90"
+              className="container lg:contents !p-16 relative -mt-52 lg:-mt-36"
               initial={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5 }}
@@ -246,7 +257,7 @@ export default function StyleGuidePage() {
               <Connector className="-bottom-10 -right-[10.5px] lg:hidden" />
               
               {/* Hero Input Component */}
-              <div className="max-w-552 mx-auto w-full relative z-[11] lg:z-[2] rounded-20 -mt-30 lg:-mt-30">
+              <div className="max-w-552 mx-auto w-full relative z-[11] lg:z-[2] rounded-20">
                 <div
                   className="overlay bg-accent-white"
                   style={{

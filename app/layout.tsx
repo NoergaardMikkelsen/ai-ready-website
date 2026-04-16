@@ -15,7 +15,7 @@ const robotoMono = Roboto_Mono({
 export const metadata: Metadata = {
   title: "Er din hjemmeside klar til AI?",
   description:
-    "Tjek hvor AI-klar din hjemmeside er. Et værktøj fra Nørgaard Mikkelsen.",
+    "Tjek hvor AI-klar din hjemmeside er. Et værktøj fra Nørgård Mikkelsen.",
   icons: {
     icon: "/nm_arrow.png",
   },

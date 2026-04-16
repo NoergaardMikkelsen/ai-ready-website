@@ -128,7 +128,7 @@ export default function PDFReport({ url, overallScore, checks, aiChecks = [], da
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <Text style={styles.brandName}>Nørgaard Mikkelsen</Text>
+            <Text style={styles.brandName}>Nørgård Mikkelsen</Text>
             <Text style={styles.brandSub}>AI-parathedsanalyse</Text>
           </View>
           <View style={styles.headerRight}>
