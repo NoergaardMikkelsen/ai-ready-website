@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { GeistMono } from "geist/font/mono";
 import { Roboto_Mono } from "next/font/google";
+import Script from "next/script";
 import ColorStyles from "@/components/shared/color-styles/color-styles";
 import Scrollbar from "@/components/ui/scrollbar";
 import "styles/main.css";
@@ -35,6 +36,11 @@ export default function RootLayout({
       >
         <main className="overflow-x-clip">{children}</main>
         <Scrollbar />
+        <Script
+          id="hs-script-loader"
+          src="//js.hs-scripts.com/2106542.js"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );

@@ -51,7 +51,7 @@ export default function ErrorModal({
           <motion.div
             role="alertdialog"
             aria-modal="true"
-            className="relative bg-accent-white rounded-16 w-full max-w-[440px] p-32 z-[1] shadow-2xl text-center"
+            className="relative bg-accent-white rounded-16 w-full max-w-[440px] p-20 md:p-32 z-[1] shadow-2xl text-center"
             initial={{ opacity: 0, y: 20, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.98 }}

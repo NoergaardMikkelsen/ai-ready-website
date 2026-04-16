@@ -46,7 +46,7 @@ export default function MetricBars({ metrics }: MetricBarsProps) {
   const sortedMetrics = [...metrics].sort((a, b) => b.score - a.score);
   
   return (
-    <div className="space-y-8 max-w-[800px] mx-auto">
+    <div className="space-y-16 max-w-[800px] mx-auto">
       {sortedMetrics.map((metric, index) => {
         const isExpanded = expandedItems.has(metric.label);
         
@@ -58,44 +58,40 @@ export default function MetricBars({ metrics }: MetricBarsProps) {
             transition={{ delay: index * 0.05, duration: 0.3 }}
             className="space-y-0"
           >
-            <div 
+            <div
               className={`grid grid-cols-12 gap-4 items-center p-8 -m-8 rounded-8 cursor-pointer transition-all hover:bg-black-alpha-2 ${
                 isExpanded ? 'bg-black-alpha-4' : ''
               }`}
               onClick={() => toggleExpanded(metric.label)}
             >
-              {/* Bullet and Label - fixed width */}
-              <div className="col-span-4 flex items-center gap-8">
-                <div className={`w-6 h-6 rounded-full ${getBulletColor(metric.score)}`} />
-                <span className="text-label-medium text-accent-black truncate">{metric.label}</span>
+              {/* Bullet and Label */}
+              <div className="col-span-5 md:col-span-4 flex items-center gap-8 min-w-0">
+                <div className={`w-6 h-6 rounded-full flex-shrink-0 ${getBulletColor(metric.score)}`} />
+                <span className="text-label-medium text-accent-black leading-snug">{metric.label}</span>
                 <motion.div
                   animate={{ rotate: isExpanded ? 180 : 0 }}
                   transition={{ duration: 0.2 }}
-                  className="ml-auto"
+                  className="ml-auto flex-shrink-0"
                 >
                   <ChevronDown className="w-16 h-16 text-black-alpha-32" />
                 </motion.div>
               </div>
-              
-              {/* Bar container - flexible width */}
-              <div className="col-span-7 relative">
+
+              {/* Bar container */}
+              <div className="col-span-5 md:col-span-7 relative">
                 <div className="relative h-8 bg-black-alpha-8 rounded-full overflow-hidden">
-                  {/* Animated bar */}
                   <motion.div
                     className={`absolute inset-y-0 left-0 ${getBarColor(metric.score)} rounded-full`}
                     initial={{ width: 0 }}
                     animate={{ width: `${Math.max(metric.score, 2)}%` }}
-                    transition={{ 
-                      delay: 0.2 + index * 0.05, 
+                    transition={{
+                      delay: 0.2 + index * 0.05,
                       duration: 0.8,
                       ease: "easeOut"
                     }}
                   >
-                    {/* Subtle inner glow */}
                     <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white opacity-10 rounded-full" />
                   </motion.div>
-                  
-                  {/* Score indicator lines at key thresholds */}
                   {[40, 60, 80].map(threshold => (
                     <div
                       key={threshold}
@@ -105,10 +101,10 @@ export default function MetricBars({ metrics }: MetricBarsProps) {
                   ))}
                 </div>
               </div>
-              
-              {/* Score value - fixed width */}
-              <div className="col-span-1 text-right">
-                <span className="text-label-medium font-medium text-heat-100">
+
+              {/* Score value */}
+              <div className="col-span-2 md:col-span-1 text-right">
+                <span className="text-label-medium font-medium text-heat-100 tabular-nums">
                   {metric.score}%
                 </span>
               </div>
@@ -124,24 +120,24 @@ export default function MetricBars({ metrics }: MetricBarsProps) {
                   transition={{ duration: 0.3 }}
                   className="overflow-hidden"
                 >
-                  <div className="pl-20 md:pl-54 pr-12 py-12 space-y-8">
+                  <div className="mt-10 mb-8 space-y-16 py-4">
                     <div>
-                      <div className="text-label-small text-black-alpha-48 mb-4">Status</div>
-                      <div className="text-body-small text-accent-black">{metric.details}</div>
+                      <div className="text-label-x-small text-black-alpha-32 uppercase tracking-wider mb-4">Status</div>
+                      <div className="text-body-small text-accent-black leading-relaxed">{metric.details}</div>
                     </div>
                     {metric.recommendation && (
                       <div>
-                        <div className="text-label-small text-black-alpha-48 mb-4">Anbefaling</div>
-                        <div className="text-body-small text-black-alpha-64">{metric.recommendation}</div>
+                        <div className="text-label-x-small text-black-alpha-32 uppercase tracking-wider mb-4">Anbefaling</div>
+                        <div className="text-body-small text-black-alpha-64 leading-relaxed">{metric.recommendation}</div>
                       </div>
                     )}
                     {metric.actionItems && metric.actionItems.length > 0 && (
                       <div>
-                        <div className="text-label-small text-black-alpha-48 mb-4">Handlingspunkter</div>
-                        <ul className="space-y-4">
+                        <div className="text-label-x-small text-black-alpha-32 uppercase tracking-wider mb-6">Handlingspunkter</div>
+                        <ul className="space-y-6">
                           {metric.actionItems.map((item: string, i: number) => (
-                            <li key={i} className="flex items-start gap-6 text-body-small text-black-alpha-64">
-                              <span className="text-heat-100 mt-1">•</span>
+                            <li key={i} className="flex items-start gap-8 text-body-small text-black-alpha-64 leading-relaxed">
+                              <div className="w-5 h-5 rounded-full bg-heat-100 flex-shrink-0 mt-[3px]" />
                               <span>{item}</span>
                             </li>
                           ))}
@@ -163,24 +159,24 @@ export default function MetricBars({ metrics }: MetricBarsProps) {
         transition={{ delay: 0.5 }}
         className="mt-20 pt-12 border-t border-black-alpha-8"
       >
-        <div className="grid grid-cols-3 gap-16 text-center">
+        <div className="grid grid-cols-3 gap-8 md:gap-16 text-center">
           <div>
-            <div className="text-title-h3 text-heat-150">
+            <div className="text-title-h4 md:text-title-h3 text-heat-150">
               {metrics.filter(m => m.status === 'pass').length}
             </div>
-            <div className="text-label-small text-black-alpha-48">Bestået</div>
+            <div className="text-label-x-small md:text-label-small text-black-alpha-48">Bestået</div>
           </div>
           <div>
-            <div className="text-title-h3 text-heat-100">
+            <div className="text-title-h4 md:text-title-h3 text-heat-100">
               {metrics.filter(m => m.status === 'warning').length}
             </div>
-            <div className="text-label-small text-black-alpha-48">Advarsel</div>
+            <div className="text-label-x-small md:text-label-small text-black-alpha-48">Advarsel</div>
           </div>
           <div>
-            <div className="text-title-h3 text-heat-50">
+            <div className="text-title-h4 md:text-title-h3 text-heat-50">
               {metrics.filter(m => m.status === 'fail').length}
             </div>
-            <div className="text-label-small text-black-alpha-48">Fejlet</div>
+            <div className="text-label-x-small md:text-label-small text-black-alpha-48">Fejlet</div>
           </div>
         </div>
       </motion.div>

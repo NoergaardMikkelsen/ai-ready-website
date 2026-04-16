@@ -566,31 +566,38 @@ export default function ControlPanel({
         <AnimatePresence>
           {selectedCheck === check.id && check.details && (
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
-              className="mt-12 pt-12 border-t border-black-alpha-8"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25 }}
+              className="overflow-hidden"
             >
-              <div className="space-y-6 min-w-0">
-                <div className="min-w-0">
-                  <div className="text-label-small text-black-alpha-48 mb-2">Status</div>
-                  <div className="text-body-small text-accent-black break-words [overflow-wrap:anywhere]">{check.details}</div>
-                </div>
-                <div className="min-w-0">
-                  <div className="text-label-small text-black-alpha-48 mb-2">Anbefaling</div>
-                  <div className="text-body-small text-black-alpha-64 break-words [overflow-wrap:anywhere]">{check.recommendation}</div>
-                  {check.actionItems && check.actionItems.length > 0 && (
-                    <ul className="mt-4 space-y-2">
+              <div className="mt-12 pt-12 pb-4 space-y-10 border-t border-black-alpha-8">
+                {check.details && (
+                  <div>
+                    <div className="text-label-x-small text-black-alpha-32 uppercase tracking-wider mb-4">Status</div>
+                    <div className="text-body-small text-accent-black break-words [overflow-wrap:anywhere] leading-relaxed">{check.details}</div>
+                  </div>
+                )}
+                {check.recommendation && (
+                  <div>
+                    <div className="text-label-x-small text-black-alpha-32 uppercase tracking-wider mb-4">Anbefaling</div>
+                    <div className="text-body-small text-black-alpha-64 break-words [overflow-wrap:anywhere] leading-relaxed">{check.recommendation}</div>
+                  </div>
+                )}
+                {check.actionItems && check.actionItems.length > 0 && (
+                  <div>
+                    <div className="text-label-x-small text-black-alpha-32 uppercase tracking-wider mb-6">Handlingspunkter</div>
+                    <ul className="space-y-4">
                       {check.actionItems.map((item: string, i: number) => (
-                        <li key={i} className="flex items-start gap-6 text-body-small text-black-alpha-64 min-w-0">
-                          <span className="text-heat-100 mt-1 shrink-0">•</span>
-                          <span className="min-w-0 break-words [overflow-wrap:anywhere]">{item}</span>
+                        <li key={i} className="flex items-start gap-8 text-body-small text-black-alpha-64">
+                          <span className="mt-[5px] w-5 h-5 rounded-full bg-heat-100 flex-shrink-0" />
+                          <span className="break-words [overflow-wrap:anywhere]">{item}</span>
                         </li>
                       ))}
                     </ul>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </motion.div>
           )}
@@ -712,28 +719,24 @@ export default function ControlPanel({
       {viewMode === 'chart' && showResults && (
         <div>
           <motion.div
-            className="flex flex-col lg:flex-row justify-center items-center gap-24 lg:gap-40 mb-40"
+            className="flex flex-col lg:flex-row justify-center items-start gap-24 lg:gap-48 mb-40"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
           >
             {/* Basic Analysis Chart */}
-            <div className="flex flex-col items-center">
-              <h3 className="text-label-large text-accent-black mb-16 font-medium">Grundanalyse</h3>
+            <div className="flex flex-col w-full lg:w-[360px]">
+              <h3 className="text-label-large text-accent-black mb-16 font-medium text-center">Grundanalyse</h3>
               <RadarChart 
                 data={checks
                   .filter(check => check.status !== 'pending' && check.status !== 'checking')
                   .slice(0, 8)
                   .map(check => ({
-                    label: check.label.length > 12 ? check.label.substring(0, 12) + '...' : check.label,
+                    label: check.label,
                     score: check.score || 0
                   }))}
-                size={350}
+                size={300}
               />
-              <div className="mt-16 text-center">
-                <div className="text-title-h3 text-accent-black">{overallScore}%</div>
-                <div className="text-label-small text-black-alpha-48">Samlet score</div>
-              </div>
             </div>
             
             {(aiInsights.length > 0 || inTease) && (
@@ -751,12 +754,12 @@ export default function ControlPanel({
                 with synthetic tease data when locked. */}
             {(aiInsights.length > 0 || inTease) && (
               <motion.div
-                className="flex flex-col items-center relative"
+                className="flex flex-col w-full lg:w-[360px] relative"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <h3 className="text-label-large text-heat-100 mb-16 font-medium">AI-forbedret analyse</h3>
+                <h3 className="text-label-large text-heat-100 mb-16 font-medium text-center">AI-forbedret analyse</h3>
                 <div
                   className={`transition-all ${
                     inTease ? 'opacity-40 select-none blur-[1px] pointer-events-none' : ''
@@ -770,25 +773,12 @@ export default function ControlPanel({
                             .filter(check => check.status !== 'pending' && check.status !== 'checking')
                             .slice(0, 8)
                             .map(check => ({
-                              label: check.label.length > 12 ? check.label.substring(0, 12) + '...' : check.label,
+                              label: check.label,
                               score: check.score || 0,
                             }))
                     }
-                    size={350}
+                    size={300}
                   />
-                  <div className="mt-16 text-center">
-                    <div className="text-title-h3 text-heat-100">
-                      {inTease
-                        ? Math.round(
-                            AI_TEASE_SCORES.reduce((a, b) => a + b, 0) / AI_TEASE_SCORES.length,
-                          )
-                        : Math.round(
-                            aiInsights.reduce((sum, check) => sum + (check.score || 0), 0) / aiInsights.length,
-                          )}
-                      %
-                    </div>
-                    <div className="text-label-small text-heat-100 opacity-60">AI-score</div>
-                  </div>
                 </div>
                 {inTease && <AITeaseCTA onClick={handleAIClick} />}
               </motion.div>
@@ -885,6 +875,7 @@ export default function ControlPanel({
         onSuccess={handleGateSuccess}
         websiteUrl={url}
       />
+
     </motion.div>
   );
 }

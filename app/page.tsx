@@ -263,6 +263,7 @@ export default function StyleGuidePage() {
                     placeholder="www.example.dk"
                     type="text"
                     value={url}
+                    suppressHydrationWarning
                     onChange={(e) => {
                       const newUrl = e.target.value;
                       setUrl(newUrl);
