@@ -583,10 +583,10 @@ export default function ControlPanel({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <h2 className="text-title-h4 md:text-title-h3 lg:text-title-h2 text-accent-black mb-12 break-words px-16">
+        <h2 className="text-title-h4 md:text-title-h3 lg:text-title-h2 text-accent-black mb-12 break-words">
           AI-parathedsanalyse
         </h2>
-        <p className="text-body-medium md:text-body-large text-black-alpha-64 break-all md:break-words px-16">
+        <p className="text-body-medium md:text-body-large text-black-alpha-64 break-all md:break-words">
           Øjebliksbillede af én side: {url}
         </p>
         

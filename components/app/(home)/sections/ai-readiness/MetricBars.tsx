@@ -59,26 +59,30 @@ export default function MetricBars({ metrics }: MetricBarsProps) {
             className="space-y-0"
           >
             <div
-              className={`grid grid-cols-12 gap-4 items-center p-8 -m-8 rounded-8 cursor-pointer transition-all hover:bg-black-alpha-2 ${
+              className={`flex flex-col gap-6 md:grid md:grid-cols-12 md:gap-4 md:items-center p-8 -m-8 rounded-8 cursor-pointer transition-all hover:bg-black-alpha-2 ${
                 isExpanded ? 'bg-black-alpha-4' : ''
               }`}
               onClick={() => toggleExpanded(metric.label)}
             >
-              {/* Bullet and Label */}
-              <div className="col-span-5 md:col-span-4 flex items-center gap-8 min-w-0">
+              {/* Mobile: top row — bullet + label + score + chevron */}
+              <div className="flex items-center gap-8 md:col-span-4 min-w-0">
                 <div className={`w-6 h-6 rounded-full flex-shrink-0 ${getBulletColor(metric.score)}`} />
-                <span className="text-label-medium text-accent-black leading-snug">{metric.label}</span>
+                <span className="text-label-medium text-accent-black leading-snug flex-1 min-w-0">{metric.label}</span>
+                {/* Score visible on mobile only */}
+                <span className="text-label-medium font-medium text-heat-100 tabular-nums md:hidden flex-shrink-0">
+                  {metric.score}%
+                </span>
                 <motion.div
                   animate={{ rotate: isExpanded ? 180 : 0 }}
                   transition={{ duration: 0.2 }}
-                  className="ml-auto flex-shrink-0"
+                  className="flex-shrink-0"
                 >
                   <ChevronDown className="w-16 h-16 text-black-alpha-32" />
                 </motion.div>
               </div>
 
               {/* Bar container */}
-              <div className="col-span-5 md:col-span-7 relative">
+              <div className="md:col-span-7 relative">
                 <div className="relative h-8 bg-black-alpha-8 rounded-full overflow-hidden">
                   <motion.div
                     className={`absolute inset-y-0 left-0 ${getBarColor(metric.score)} rounded-full`}
@@ -102,8 +106,8 @@ export default function MetricBars({ metrics }: MetricBarsProps) {
                 </div>
               </div>
 
-              {/* Score value */}
-              <div className="col-span-2 md:col-span-1 text-right">
+              {/* Score — desktop only */}
+              <div className="hidden md:block md:col-span-1 text-right">
                 <span className="text-label-medium font-medium text-heat-100 tabular-nums">
                   {metric.score}%
                 </span>
