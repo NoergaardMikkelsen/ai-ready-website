@@ -689,16 +689,16 @@ export default function ControlPanel({
             {/* Basic Analysis Chart */}
             <div className="flex flex-col w-full lg:w-[360px]">
               <h3 className="text-label-large text-accent-black mb-16 font-medium text-center">Grundanalyse</h3>
-              <RadarChart 
-                data={checks
-                  .filter(check => check.status !== 'pending' && check.status !== 'checking')
-                  .slice(0, 8)
-                  .map(check => ({
-                    label: check.label,
-                    score: check.score || 0
-                  }))}
-                size={300}
-              />
+              {(() => {
+                const visibleChecks = checks.filter(c => c.status !== 'pending' && c.status !== 'checking').slice(0, 8);
+                return (
+                  <RadarChart
+                    data={visibleChecks.map(c => ({ label: c.label, score: c.score || 0 }))}
+                    size={300}
+                    onSelect={i => setSelectedCheck(visibleChecks[i] ?? null)}
+                  />
+                );
+              })()}
             </div>
             
             {(aiInsights.length > 0 || inTease) && (
@@ -727,20 +727,16 @@ export default function ControlPanel({
                     inTease ? 'opacity-40 select-none blur-[1px] pointer-events-none' : ''
                   }`}
                 >
-                  <RadarChart
-                    data={
-                      inTease
-                        ? AI_TEASE_RADAR_DATA
-                        : aiInsights
-                            .filter(check => check.status !== 'pending' && check.status !== 'checking')
-                            .slice(0, 8)
-                            .map(check => ({
-                              label: check.label,
-                              score: check.score || 0,
-                            }))
-                    }
-                    size={300}
-                  />
+                  {(() => {
+                    const visibleAI = inTease ? [] : aiInsights.filter(c => c.status !== 'pending' && c.status !== 'checking').slice(0, 8);
+                    return (
+                      <RadarChart
+                        data={inTease ? AI_TEASE_RADAR_DATA : visibleAI.map(c => ({ label: c.label, score: c.score || 0 }))}
+                        size={300}
+                        onSelect={inTease ? undefined : i => setSelectedCheck(visibleAI[i] ?? null)}
+                      />
+                    );
+                  })()}
                 </div>
                 {inTease && <AITeaseCTA onClick={handleAIClick} />}
               </motion.div>

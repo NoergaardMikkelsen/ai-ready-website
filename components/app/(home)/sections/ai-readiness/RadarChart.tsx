@@ -6,6 +6,7 @@ import { useEffect, useId, useState } from "react";
 interface RadarChartProps {
   data: { label: string; score: number; maxScore?: number }[];
   size?: number;
+  onSelect?: (index: number) => void;
 }
 
 function splitLabel(label: string): [string, string] {
@@ -20,7 +21,7 @@ function splitLabel(label: string): [string, string] {
   return [line1 || words[0], words.slice(i).join(" ")];
 }
 
-export default function RadarChart({ data, size = 300 }: RadarChartProps) {
+export default function RadarChart({ data, size = 300, onSelect }: RadarChartProps) {
   const [isAnimated, setIsAnimated] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const uid = useId().replace(/:/g, "");
@@ -231,7 +232,8 @@ export default function RadarChart({ data, size = 300 }: RadarChartProps) {
               }}
               onMouseEnter={() => setHoveredIndex(i)}
               onMouseLeave={() => setHoveredIndex(null)}
-              style={{ cursor: "pointer" }}
+              onClick={() => onSelect?.(i)}
+              style={{ cursor: onSelect ? "pointer" : "default" }}
             >
               <circle
                 cx={bx}
@@ -270,7 +272,8 @@ export default function RadarChart({ data, size = 300 }: RadarChartProps) {
             transition={{ delay: 1.2 + i * 0.04 }}
             onMouseEnter={() => setHoveredIndex(i)}
             onMouseLeave={() => setHoveredIndex(null)}
-            style={{ cursor: "default" }}
+            onClick={() => onSelect?.(i)}
+            style={{ cursor: onSelect ? "pointer" : "default" }}
           >
             {/* Number badge */}
             <div
