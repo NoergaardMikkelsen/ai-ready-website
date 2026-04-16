@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Download } from "lucide-react";
+import { Download, Lock } from "lucide-react";
 
 type CheckItem = {
   id: string;
@@ -18,12 +18,26 @@ type Props = {
   overallScore: number;
   checks: CheckItem[];
   aiChecks?: CheckItem[];
+  locked?: boolean;
+  onLockedClick?: () => void;
 };
 
-export default function DownloadPDFButton({ url, overallScore, checks, aiChecks = [] }: Props) {
+export default function DownloadPDFButton({
+  url,
+  overallScore,
+  checks,
+  aiChecks = [],
+  locked = false,
+  onLockedClick,
+}: Props) {
   const [loading, setLoading] = useState(false);
 
   const handleDownload = async () => {
+    if (locked) {
+      onLockedClick?.();
+      return;
+    }
+
     setLoading(true);
     try {
       // Dynamic import to avoid SSR issues
@@ -60,8 +74,12 @@ export default function DownloadPDFButton({ url, overallScore, checks, aiChecks 
       disabled={loading}
       className="flex items-center gap-8 px-20 py-10 bg-accent-white border border-black-alpha-8 hover:bg-black-alpha-4 rounded-8 text-label-medium transition-all disabled:opacity-50"
     >
-      <Download className={`w-16 h-16 ${loading ? "animate-bounce" : ""}`} />
-      {loading ? "Genererer…" : "Download rapport"}
+      {locked ? (
+        <Lock className="w-16 h-16" />
+      ) : (
+        <Download className={`w-16 h-16 ${loading ? "animate-bounce" : ""}`} />
+      )}
+      {locked ? "Lås op for at hente rapport" : loading ? "Genererer…" : "Download rapport"}
     </button>
   );
 }

@@ -19,7 +19,8 @@ import {
   FileCode,
   Network,
   Info,
-  Eye
+  Eye,
+  ArrowUpRight
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useAtom } from "jotai";
@@ -751,10 +752,19 @@ export default function ControlPanel({
               transition={{ delay: 0.5 }}
               className="text-center mb-20"
             >
-              <div className="inline-flex items-center gap-8 px-16 py-8 bg-heat-4 rounded-8">
-                <span className="text-label-medium text-accent-black">
-                  AI-analysen fandt {aiInsights.filter(i => i.score && i.score < 50).length} yderligere forbedringsområder
-                </span>
+              <div className="inline-flex flex-col items-center gap-12 px-20 py-16 bg-heat-4 rounded-12">
+                <p className="text-body-small md:text-body-medium text-black-alpha-64 max-w-[34rem]">
+                  Vil I have hjælp til at omsætte analysen til konkrete forbedringer?
+                </p>
+                <a
+                  href="https://nmic.dk"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-8 px-16 py-10 bg-accent-black hover:bg-black-alpha-80 text-white rounded-8 text-label-medium transition-all"
+                >
+                  Tag en snak med os
+                  <ArrowUpRight className="w-14 h-14" />
+                </a>
               </div>
             </motion.div>
           )}
@@ -824,6 +834,8 @@ export default function ControlPanel({
             overallScore={enhancedScore > 0 ? enhancedScore : overallScore}
             checks={checks.filter(check => check.status !== 'pending' && check.status !== 'checking')}
             aiChecks={aiInsights.filter(check => check.status !== 'pending' && check.status !== 'checking')}
+            locked={!hasUnlockedAI}
+            onLockedClick={() => setGateOpen(true)}
           />
           <button
             onClick={onReset}
