@@ -256,7 +256,7 @@ export const encryptText = (
 
 export default function HomeHeroTitle() {
   return (
-    <div className="text-title-h1 mx-auto text-center [&_span]:text-heat-100 mb-12 lg:mb-16">
+    <div className="text-title-h3 md:text-title-h2 lg:text-title-h1 mx-auto text-center [&_span]:text-heat-100 mb-12 lg:mb-16 px-16">
       Er din hjemmeside <br />
       <span>klar til AI?</span>
     </div>
