@@ -29,6 +29,7 @@ import MetricBars from "./MetricBars";
 import HubspotGate from "@/components/shared/hubspot-gate/HubspotGate";
 import AITeaseCTA from "@/components/shared/ai-tease-cta/AITeaseCTA";
 import DetailDrawer from "@/components/shared/detail-drawer/DetailDrawer";
+import DownloadPDFButton from "@/components/shared/pdf-report/DownloadPDFButton";
 import { hasUnlockedAIAtom } from "@/atoms/gate";
 
 const AI_PLACEHOLDER_BASE = [
@@ -816,8 +817,14 @@ export default function ControlPanel({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
-          className="flex gap-12 justify-center"
+          className="flex flex-wrap gap-12 justify-center"
         >
+          <DownloadPDFButton
+            url={url}
+            overallScore={enhancedScore > 0 ? enhancedScore : overallScore}
+            checks={checks.filter(check => check.status !== 'pending' && check.status !== 'checking')}
+            aiChecks={aiInsights.filter(check => check.status !== 'pending' && check.status !== 'checking')}
+          />
           <button
             onClick={onReset}
             className="px-20 py-10 bg-accent-white border border-black-alpha-8 hover:bg-black-alpha-4 rounded-8 text-label-medium transition-all"
