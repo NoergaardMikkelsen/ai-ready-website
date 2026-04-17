@@ -97,6 +97,13 @@ interface CheckItem {
   tooltip?: string;
 }
 
+function calculateEnhancedScore(baseScore: number, insights: Array<{ score?: number }>) {
+  if (!insights.length) return 0;
+  const aiScores = insights.map((i) => i.score || 0);
+  const avgAiScore = aiScores.reduce((a, b) => a + b, 0) / aiScores.length;
+  return Math.round((baseScore * 0.6) + (avgAiScore * 0.4));
+}
+
 export default function ControlPanel({
   isAnalyzing,
   showResults,
@@ -229,16 +236,8 @@ export default function ControlPanel({
         });
 
         if (data.insights.length > 0) {
-          const aiScores = data.insights.map((i: any) => i.score || 0);
-          const avgAiScore = aiScores.reduce((a: number, b: number) => a + b, 0) / aiScores.length;
-          const combinedScore = Math.round((overallScore * 0.6) + (avgAiScore * 0.4));
-          console.log('[AI-ENHANCED][DEBUG] manual run', {
-            overallScoreState: overallScore,
-            analysisDataOverallScore: analysisData?.overallScore,
-            aiScores,
-            avgAiScore,
-            combinedScore,
-          });
+          const baseScore = analysisData?.overallScore ?? overallScore;
+          const combinedScore = calculateEnhancedScore(baseScore, data.insights);
           setEnhancedScore(combinedScore);
         }
       }
@@ -354,16 +353,8 @@ export default function ControlPanel({
                 
                 // Calculate enhanced score
                 if (data.insights.length > 0) {
-                  const aiScores = data.insights.map((i: any) => i.score || 0);
-                  const avgAiScore = aiScores.reduce((a: number, b: number) => a + b, 0) / aiScores.length;
-                  const combinedScore = Math.round((overallScore * 0.6) + (avgAiScore * 0.4));
-                  console.log('[AI-ENHANCED][DEBUG] auto-start run', {
-                    overallScoreState: overallScore,
-                    analysisDataOverallScore: analysisData?.overallScore,
-                    aiScores,
-                    avgAiScore,
-                    combinedScore,
-                  });
+                  const baseScore = analysisData?.overallScore ?? overallScore;
+                  const combinedScore = calculateEnhancedScore(baseScore, data.insights);
                   setEnhancedScore(combinedScore);
                 }
               }
