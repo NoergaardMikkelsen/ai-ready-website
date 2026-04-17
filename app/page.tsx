@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSearchParams } from "next/navigation";
 
 // Import shared components
 import Button from "@/components/shared/button/Button";
@@ -33,6 +34,7 @@ import ButtonUI from "@/components/ui/shadcn/button";
 import ErrorModal from "@/components/shared/error-modal/ErrorModal";
 
 export default function StyleGuidePage() {
+  const searchParams = useSearchParams();
   const [tab, setTab] = useState<Endpoint>(Endpoint.Scrape);
   const [url, setUrl] = useState<string>("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -43,6 +45,7 @@ export default function StyleGuidePage() {
   const [urlError, setUrlError] = useState<string>("");
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const isInitialView = !isAnalyzing && !showResults;
+  const internalAccess = searchParams.has("internal");
   
   // Check for API keys on mount
   useEffect(() => {
@@ -91,19 +94,25 @@ export default function StyleGuidePage() {
         body: JSON.stringify({ url: processedUrl }),
       });
       
-      // Disable automatic AI analysis for now - user will click button
-      let aiAnalysisPromise = null;
-      
+      // When internal access is enabled, kick off AI analysis in parallel
+      // with the basic analysis so results arrive faster and no gate is shown.
+      const aiAnalysisPromise = internalAccess
+        ? fetch('/api/ai-analysis', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: processedUrl }),
+          })
+        : null;
+
       // Wait for basic analysis
       const response = await basicAnalysisPromise;
       const data = await response.json();
-      
+
       if (data.success) {
         setAnalysisData({
           ...data,
-          aiAnalysisPromise: null, // No auto AI analysis
-          hasOpenAIKey: false, // Disable auto AI
-          autoStartAI: false // Don't auto-start
+          aiAnalysisPromise,
+          autoStartAI: internalAccess,
         });
         setIsAnalyzing(false);
         setShowResults(true);
@@ -227,6 +236,7 @@ export default function StyleGuidePage() {
                     showResults={showResults}
                     url={url}
                     analysisData={analysisData}
+                    internalAccess={internalAccess}
                     onReset={() => {
                       setIsAnalyzing(false);
                       setShowResults(false);

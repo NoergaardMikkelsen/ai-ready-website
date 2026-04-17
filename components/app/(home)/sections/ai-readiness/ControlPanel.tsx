@@ -22,7 +22,7 @@ import {
   Eye,
   ArrowUpRight
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import ScoreChart from "./ScoreChart";
 import RadarChart from "./RadarChart";
@@ -80,6 +80,7 @@ interface ControlPanelProps {
   showResults: boolean;
   url: string;
   analysisData?: any;
+  internalAccess?: boolean;
   onReset: () => void;
 }
 
@@ -101,6 +102,7 @@ export default function ControlPanel({
   showResults,
   url,
   analysisData,
+  internalAccess = false,
   onReset,
 }: ControlPanelProps) {
   const [showAIAnalysis, setShowAIAnalysis] = useState(false);
@@ -173,23 +175,30 @@ export default function ControlPanel({
   const [enhancedScore, setEnhancedScore] = useState(0);
   const [viewMode, setViewMode] = useState<'grid' | 'chart' | 'bars'>('grid');
   const [hasUnlockedAI, setHasUnlockedAI] = useAtom(hasUnlockedAIAtom);
+  const handledAIPromiseRef = useRef<Promise<any> | null>(null);
   const [gateOpen, setGateOpen] = useState(false);
+  const canAccessAI = hasUnlockedAI || internalAccess;
 
-  const inTease = showResults && !isAnalyzingAI && aiInsights.length === 0;
+  useEffect(() => {
+    if (!internalAccess) return;
+
+    setGateOpen(false);
+    if (hasUnlockedAI) {
+      setHasUnlockedAI(false);
+    }
+  }, [internalAccess, hasUnlockedAI, setHasUnlockedAI]);
+
+  const inTease = showResults && !canAccessAI && !isAnalyzingAI && aiInsights.length === 0;
 
   const runAIAnalysis = useCallback(async () => {
     setIsAnalyzingAI(true);
     setShowAIAnalysis(true);
 
-    // Clear any tease tiles first so the staggered loading animation
-    // starts from a clean slate.
-    setCombinedChecks(prev => prev.filter(c => !(c as any).isAI));
-
-    AI_LOADING_CHECKS.forEach((check, idx) => {
-      setTimeout(() => {
-        setCombinedChecks(prev => [...prev, check]);
-      }, 100 * (idx + 1));
-    });
+    // Replace any existing AI tiles (tease or loading) with loading tiles atomically.
+    setCombinedChecks(prev => [
+      ...prev.filter(c => !(c as any).isAI),
+      ...AI_LOADING_CHECKS,
+    ]);
 
     try {
       const response = await fetch('/api/ai-analysis', {
@@ -233,13 +242,15 @@ export default function ControlPanel({
     }
   }, [url, analysisData, checks, overallScore]);
 
+  // AI auto-run for internal access is handled in page.tsx via autoStartAI + aiAnalysisPromise.
+
   const handleAIClick = useCallback(() => {
-    if (hasUnlockedAI) {
+    if (canAccessAI) {
       runAIAnalysis();
     } else {
       setGateOpen(true);
     }
-  }, [hasUnlockedAI, runAIAnalysis]);
+  }, [canAccessAI, runAIAnalysis]);
 
   const handleGateSuccess = useCallback(() => {
     setHasUnlockedAI(true);
@@ -258,108 +269,33 @@ export default function ControlPanel({
       setChecks(mappedChecks);
       // Seed the combined grid with the basic 8 + the tease placeholders
       // so the tease overlay has something to dim underneath.
-      setCombinedChecks([...mappedChecks, ...AI_TEASE_CHECKS]);
+      // When autoStartAI is true we skip the tease tiles — loading tiles
+      // are added below via the staggered animation, so seeding tease
+      // tiles here would cause duplicate ai-loading-* keys.
+      setCombinedChecks([...mappedChecks, ...(analysisData.autoStartAI ? [] : AI_TEASE_CHECKS)]);
       setAiInsights([]);
       setEnhancedScore(0);
       setOverallScore(analysisData.overallScore || 0);
       setCurrentCheckIndex(-1);
       
-      // If AI analysis should auto-start, handle the promise
-      if (analysisData.autoStartAI && analysisData.aiAnalysisPromise) {
+      // If AI analysis should auto-start, handle the promise.
+      // Guard with a ref so StrictMode double-invocation doesn't attach two
+      // .then() handlers to the same Response (body can only be consumed once).
+      if (
+        analysisData.autoStartAI &&
+        analysisData.aiAnalysisPromise &&
+        handledAIPromiseRef.current !== analysisData.aiAnalysisPromise
+      ) {
+        handledAIPromiseRef.current = analysisData.aiAnalysisPromise;
         console.log('Auto-starting AI analysis with promise');
         setIsAnalyzingAI(true);
         setShowAIAnalysis(true);
         
-        // Add placeholder AI tiles immediately with actual titles
-        const placeholderAIChecks = [
-          {
-            id: 'ai-loading-0',
-            label: 'Indholdskvalitet til AI',
-            description: 'Analyserer signalforhold i indholdet…',
-            icon: Sparkles,
-            status: 'checking' as const,
-            score: 0,
-            isAI: true,
-            isLoading: true
-          },
-          {
-            id: 'ai-loading-1',
-            label: 'Informationsarkitektur',
-            description: 'Vurderer sidens struktur…',
-            icon: Bot,
-            status: 'checking' as const,
-            score: 0,
-            isAI: true,
-            isLoading: true
-          },
-          {
-            id: 'ai-loading-2',
-            label: 'Crawlbarhed',
-            description: 'Tjekker JavaScript-brug…',
-            icon: Database,
-            status: 'checking' as const,
-            score: 0,
-            isAI: true,
-            isLoading: true
-          },
-          {
-            id: 'ai-loading-3',
-            label: 'Værdi for AI-træning',
-            description: 'Vurderer træningspotentiale…',
-            icon: Network,
-            status: 'checking' as const,
-            score: 0,
-            isAI: true,
-            isLoading: true
-          },
-          {
-            id: 'ai-loading-4',
-            label: 'Vidensudtræk',
-            description: 'Analyserer entitetsdefinitioner…',
-            icon: FileCode,
-            status: 'checking' as const,
-            score: 0,
-            isAI: true,
-            isLoading: true
-          },
-          {
-            id: 'ai-loading-5',
-            label: 'Skabelonkvalitet',
-            description: 'Gennemgår semantisk struktur…',
-            icon: Shield,
-            status: 'checking' as const,
-            score: 0,
-            isAI: true,
-            isLoading: true
-          },
-          {
-            id: 'ai-loading-6',
-            label: 'Indholdsdybde',
-            description: 'Måler indholdets dybde…',
-            icon: Zap,
-            status: 'checking' as const,
-            score: 0,
-            isAI: true,
-            isLoading: true
-          },
-          {
-            id: 'ai-loading-7',
-            label: 'Maskinlæsbarhed',
-            description: 'Tester udtrækspålidelighed…',
-            icon: Globe,
-            status: 'checking' as const,
-            score: 0,
-            isAI: true,
-            isLoading: true
-          }
-        ];
-        
-        // Add loading AI tiles with staggered animation
-        placeholderAIChecks.forEach((check, idx) => {
-          setTimeout(() => {
-            setCombinedChecks(prev => [...prev, check]);
-          }, 100 * (idx + 1));
-        });
+        // Add all loading AI tiles atomically (no timeouts = no race conditions).
+        setCombinedChecks(prev => [
+          ...prev.filter(c => !(c as any).isAI),
+          ...AI_LOADING_CHECKS,
+        ]);
         
         // Handle the AI analysis promise
         analysisData.aiAnalysisPromise
@@ -480,10 +416,10 @@ export default function ControlPanel({
     return (
       <motion.div
         key={check.id}
-        initial={(check as any).isAI ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
+        initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: isActive ? 1.05 : 1 }}
         transition={{
-          delay: (check as any).isAI ? 0 : index * 0.1,
+          delay: index * 0.07,
           scale: { type: "spring", stiffness: 300 },
         }}
         className={`
@@ -834,7 +770,7 @@ export default function ControlPanel({
             overallScore={enhancedScore > 0 ? enhancedScore : overallScore}
             checks={checks.filter(check => check.status !== 'pending' && check.status !== 'checking')}
             aiChecks={aiInsights.filter(check => check.status !== 'pending' && check.status !== 'checking')}
-            locked={!hasUnlockedAI}
+            locked={!canAccessAI}
             onLockedClick={() => setGateOpen(true)}
           />
           <button
@@ -846,12 +782,14 @@ export default function ControlPanel({
         </motion.div>
       )}
 
-      <HubspotGate
-        isOpen={gateOpen}
-        onClose={() => setGateOpen(false)}
-        onSuccess={handleGateSuccess}
-        websiteUrl={url}
-      />
+      {!internalAccess && (
+        <HubspotGate
+          isOpen={gateOpen}
+          onClose={() => setGateOpen(false)}
+          onSuccess={handleGateSuccess}
+          websiteUrl={url}
+        />
+      )}
 
       <DetailDrawer
         check={selectedCheck}

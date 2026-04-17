@@ -248,11 +248,11 @@ export async function POST(request: NextRequest) {
   try {
     const { url, htmlContent, currentChecks } = await request.json();
     
-    if (!url || !htmlContent) {
-      return NextResponse.json({ error: 'URL and HTML content are required' }, { status: 400 });
+    if (!url) {
+      return NextResponse.json({ error: 'URL is required' }, { status: 400 });
     }
     
-    const insights = await generateAIInsights(url, htmlContent, currentChecks || []);
+    const insights = await generateAIInsights(url, htmlContent || '', currentChecks || []);
     
     return NextResponse.json({
       success: true,
