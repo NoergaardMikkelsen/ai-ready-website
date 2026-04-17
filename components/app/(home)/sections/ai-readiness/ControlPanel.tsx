@@ -254,6 +254,7 @@ export default function ControlPanel({
   }, [canAccessAI, runAIAnalysis]);
 
   const handleGateSuccess = useCallback(() => {
+    aiAutoStartedRef.current = true; // prevent auto-start effect from double-firing
     setHasUnlockedAI(true);
     setGateOpen(false);
     runAIAnalysis();
@@ -285,12 +286,12 @@ export default function ControlPanel({
         description: check.details || checks.find(c => c.id === check.id)?.description,
       }));
       setChecks(mappedChecks);
-      // Seed the combined grid with the basic 8 + the tease placeholders
-      // so the tease overlay has something to dim underneath.
-      // When autoStartAI is true we skip the tease tiles — loading tiles
-      // are added below via the staggered animation, so seeding tease
-      // tiles here would cause duplicate ai-loading-* keys.
-      setCombinedChecks([...mappedChecks, ...(analysisData.autoStartAI ? [] : AI_TEASE_CHECKS)]);
+      // Seed the combined grid with the basic 8 + the tease placeholders.
+      // Skip tease tiles when AI will start immediately: either via internal
+      // access (autoStartAI) or because the user already unlocked (canAccessAI).
+      // Adding tease tiles in those cases causes duplicates when the real tiles arrive.
+      const skipTease = analysisData.autoStartAI || canAccessAI;
+      setCombinedChecks([...mappedChecks, ...(skipTease ? [] : AI_TEASE_CHECKS)]);
       setAiInsights([]);
       setEnhancedScore(0);
       setOverallScore(analysisData.overallScore || 0);
@@ -379,7 +380,7 @@ export default function ControlPanel({
 
       return () => clearInterval(checkInterval);
     }
-  }, [isAnalyzing, showResults, analysisData]);
+  }, [isAnalyzing, showResults, analysisData, canAccessAI]);
 
   useEffect(() => {
     if (currentCheckIndex >= 0 && currentCheckIndex < checks.length && isAnalyzing) {
