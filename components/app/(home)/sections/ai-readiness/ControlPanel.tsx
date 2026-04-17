@@ -269,16 +269,22 @@ export default function ControlPanel({
       setChecks(mappedChecks);
       // Seed the combined grid with the basic 8 + the tease placeholders
       // so the tease overlay has something to dim underneath.
-      // When autoStartAI is true we skip the tease tiles — loading tiles
-      // are added below via the staggered animation, so seeding tease
-      // tiles here would cause duplicate ai-loading-* keys.
-      setCombinedChecks([...mappedChecks, ...(analysisData.autoStartAI ? [] : AI_TEASE_CHECKS)]);
+      // Skip tease tiles when AI analysis will start immediately (internal
+      // access or user already unlocked in a previous session).
+      const skipTease = analysisData.autoStartAI || canAccessAI;
+      setCombinedChecks([...mappedChecks, ...(skipTease ? [] : AI_TEASE_CHECKS)]);
       setAiInsights([]);
       setEnhancedScore(0);
       setOverallScore(analysisData.overallScore || 0);
       setCurrentCheckIndex(-1);
-      
-      // If AI analysis should auto-start, handle the promise.
+
+      // If user already unlocked AI in a previous session, run immediately
+      // without requiring them to go through the gate again.
+      if (canAccessAI && !analysisData.autoStartAI) {
+        runAIAnalysis();
+      }
+
+      // If AI analysis should auto-start via internal access, handle the promise.
       // Guard with a ref so StrictMode double-invocation doesn't attach two
       // .then() handlers to the same Response (body can only be consumed once).
       if (
@@ -361,7 +367,7 @@ export default function ControlPanel({
 
       return () => clearInterval(checkInterval);
     }
-  }, [isAnalyzing, showResults, analysisData]);
+  }, [isAnalyzing, showResults, analysisData, canAccessAI, runAIAnalysis]);
 
   useEffect(() => {
     if (currentCheckIndex >= 0 && currentCheckIndex < checks.length && isAnalyzing) {
