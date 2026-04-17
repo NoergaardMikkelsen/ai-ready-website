@@ -144,11 +144,15 @@ async function analyzeHTML(html: string, metadata: any, url: string): Promise<Ch
   const hasOgTitle = metadata?.ogTitle || metadata?.title || html.includes('og:title') || html.includes('<title');
   const hasOgDescription = metadata?.ogDescription || metadata?.description || html.includes('og:description') || html.includes('name="description"');
   
-  // Check description quality — target meta description specifically, regardless of attribute order
-  const descMatch =
-    html.match(/name=["']description["'][^>]*content=["']([^"']*)["']/i) ||
-    html.match(/content=["']([^"']*)["'][^>]*name=["']description["']/i);
-  const descLength = descMatch?.[1]?.length || 0;
+  // Check description quality — prefer metadata object (Firecrawl strips <head> from HTML),
+  // fall back to regex on raw HTML if metadata unavailable
+  const descText = metadata?.description || metadata?.ogDescription ||
+    (() => {
+      const m = html.match(/name=["']description["'][^>]*content=["']([^"']*)["']/i) ||
+                html.match(/content=["']([^"']*)["'][^>]*name=["']description["']/i);
+      return m?.[1] || '';
+    })();
+  const descLength = descText.length;
   const hasGoodDescLength = descLength >= 70 && descLength <= 160;
 
   const hasCanonical = html.includes('rel="canonical"');
