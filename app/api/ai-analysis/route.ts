@@ -14,29 +14,62 @@ interface AIAnalysisRequest {
 const SYSTEM_PROMPT =
   'Du er en ekspert i AI-parathed, der analyserer hjemmesider i ALLE brancher (e-handel, nyheder, uddannelse, sundhed, erhverv osv.). KRITISK KRAV: ALT output skal være på dansk — alle label, details, recommendation og actionItems MÅ IKKE indeholde engelsk tekst. Brug danske tegn (æ, ø, å). Tekniske udtryk som HTML, schema, robots.txt må gerne bevares på engelsk, men beskrivelser, anbefalinger og handlingspunkter skal formuleres på dansk. Vær konkret med eksempler, der passer til sidetypen.';
 
-function buildUserPrompt(url: string, currentChecks: any[]) {
-  const pageScores = JSON.stringify(
-    currentChecks
-      .filter(c => ['readability', 'heading-structure', 'meta-tags'].includes(c.id))
-      .map(c => c.label + ': ' + c.score)
-  );
+function buildUserPrompt(url: string, currentChecks: any[], htmlContent: string) {
+  // Pass ALL technical scores to GPT
+  const allScores = currentChecks
+    .map(c => `  - ${c.label}: ${c.score}% (${c.status === 'pass' ? '✅ godkendt' : c.status === 'warning' ? '⚠️ advarsel' : '❌ fejler'})`)
+    .join('\n');
+
+  // Tell GPT which checks already pass so it doesn't recommend fixing them
+  const passingLabels = currentChecks
+    .filter(c => c.status === 'pass')
+    .map(c => c.label)
+    .join(', ');
+
+  // Extract key technical signals from HTML
+  const hasJsonLd = htmlContent.includes('application/ld+json');
+  const jsonLdMatch = htmlContent.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/i);
+  const jsonLdSnippet = jsonLdMatch ? jsonLdMatch[1].trim().substring(0, 600) : null;
+  const ariaLabelCount = (htmlContent.match(/aria-label=/g) || []).length;
+  const hasAriaDescribedBy = htmlContent.includes('aria-describedby');
+  const hasMain = htmlContent.includes('<main');
+  const hasAside = htmlContent.includes('<aside');
+  const semanticTagCount = ['<article', '<nav', '<main', '<section', '<header', '<footer', '<aside']
+    .filter(t => htmlContent.includes(t)).length;
+
+  const technicalContext = [
+    `JSON-LD strukturerede data: ${hasJsonLd ? 'Ja' : 'Nej'}`,
+    jsonLdSnippet ? `JSON-LD indhold (uddrag): ${jsonLdSnippet}` : null,
+    `Semantiske HTML5-elementer til stede: ${semanticTagCount}/7 (header, footer, nav, main, section, article, aside)`,
+    `<main>-element: ${hasMain ? 'Ja' : 'Nej'}`,
+    `<aside>-element: ${hasAside ? 'Ja' : 'Nej'}`,
+    `Antal aria-label-attributter: ${ariaLabelCount}`,
+    `aria-describedby: ${hasAriaDescribedBy ? 'Ja' : 'Nej'}`,
+  ].filter(Boolean).join('\n  ');
 
   return `Analysér denne hjemmeside for AI-parathed. Det kan være ALLE typer af sider — tilpas din analyse. SVAR UDELUKKENDE PÅ DANSK.
 
 URL: ${url}
-Side-scores: ${pageScores}
 
-Analysér disse universelle AI-parathedsfaktorer (brug disse danske labels og id'er):
+TEKNISK ANALYSE ALLEREDE UDFØRT — brug disse resultater som faktuel grundlag:
+${allScores}
+
+${passingLabels ? `VIGTIGT: Følgende er allerede teknisk godkendt — anbefal IKKE forbedringer på disse punkter, men anerkend dem som styrker hvis relevant: ${passingLabels}` : ''}
+
+Tekniske detaljer fra HTML:
+  ${technicalContext}
+
+Analysér disse 8 universelle AI-parathedsfaktorer — tilpas til sidetypen og brug de tekniske facts ovenfor aktivt i din vurdering:
 1. Indholdskvalitet til AI (content-quality) — Er indholdet klart, faktuelt og værdifuldt for AI-træning?
 2. Informationsarkitektur (info-architecture) — Hvor godt organiseret og kategoriseret er informationen?
-3. Semantisk struktur (semantic-structure) — Beskriver HTML'en korrekt indholdets betydning?
+3. Semantisk struktur (semantic-structure) — Beskriver HTML'en korrekt indholdets betydning? (se tekniske facts)
 4. AI-opdagelsesværdi (ai-discovery) — Kan AI-systemer let forstå, hvad denne side tilbyder?
-5. Vidensudtræk (knowledge-extraction) — Kan fakta, entiteter og relationer udtrækkes?
+5. Vidensudtræk (knowledge-extraction) — Kan fakta, entiteter og relationer udtrækkes? (se JSON-LD)
 6. Kontekst og fuldstændighed (context-completeness) — Er der nok kontekst til, at AI kan forstå emnerne?
 7. Indholdets unikhed (content-uniqueness) — Er dette originalt indhold eller tyndt/dubleret?
-8. Maskinfortolkbarhed (machine-interpretability) — Hvor let kan AI parse og forstå dette?
+8. Maskinfortolkbarhed (machine-interpretability) — Hvor let kan AI parse og forstå dette? (se tekniske facts)
 
-Tilpas analysen til sidetypen (e-handel fokuserer på produktdata, nyheder på artikelstruktur osv.). Returnér præcis 8 insights — ét pr. område ovenfor. For hvert område skal actionItems indeholde 5 konkrete, handlingsrettede trin på dansk. ALLE tekstfelter SKAL være på dansk.`;
+Returnér præcis 8 insights. For hvert område: 5 konkrete, handlingsrettede trin på dansk der er RELEVANTE for denne specifikke side — ikke generiske råd om ting der allerede er implementeret. ALLE tekstfelter SKAL være på dansk.`;
 }
 
 const INSIGHT_ITEM_SCHEMA = {
@@ -88,7 +121,7 @@ async function generateAIInsights(url: string, htmlContent: string, currentCheck
       max_output_tokens: 4000,
       input: [
         { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: buildUserPrompt(url, currentChecks) },
+        { role: 'user', content: buildUserPrompt(url, currentChecks, htmlContent) },
       ],
       text: {
         format: {
