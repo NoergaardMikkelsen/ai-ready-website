@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSearchParams } from "next/navigation";
 
@@ -33,7 +33,7 @@ import Image from "next/image";
 import ButtonUI from "@/components/ui/shadcn/button";
 import ErrorModal from "@/components/shared/error-modal/ErrorModal";
 
-export default function StyleGuidePage() {
+function StyleGuidePage() {
   const searchParams = useSearchParams();
   const [tab, setTab] = useState<Endpoint>(Endpoint.Scrape);
   const [url, setUrl] = useState<string>("");
@@ -341,5 +341,13 @@ export default function StyleGuidePage() {
         onClose={() => setAnalysisError(null)}
       />
     </HeaderProvider>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense>
+      <StyleGuidePage />
+    </Suspense>
   );
 }
