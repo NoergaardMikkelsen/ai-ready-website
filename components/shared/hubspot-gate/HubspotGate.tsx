@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import "./hubspot-gate.css";
 
 const PORTAL_ID = "2106542";
-const FORM_ID = "dc199324-bd49-49eb-a776-2aec4f073a8e";
+const FORM_ID = "ai_website";
 const HS_SCRIPT_SRC = `https://js.hsforms.net/forms/embed/developer/${PORTAL_ID}.js`;
 
 let hubspotScriptPromise: Promise<void> | null = null;
