@@ -5,8 +5,9 @@ import { useEffect, useRef, useState } from "react";
 import "./hubspot-gate.css";
 
 const PORTAL_ID = "2106542";
-const FORM_ID = "ai_website";
+const FORM_ID = "dc199324-bd49-49eb-a776-2aec4f073a8e";
 const HS_SCRIPT_SRC = `https://js.hsforms.net/forms/embed/developer/${PORTAL_ID}.js`;
+const FORM_RENDER_TIMEOUT_MS = 4000;
 
 let hubspotScriptPromise: Promise<void> | null = null;
 
@@ -53,6 +54,8 @@ export default function HubspotGate({
 
   useEffect(() => {
     if (!isOpen) return;
+    setScriptLoaded(false);
+    setLoadError(false);
     let cancelled = false;
     loadHubspotScript()
       .then(() => {
@@ -65,6 +68,33 @@ export default function HubspotGate({
       cancelled = true;
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !scriptLoaded || loadError) return;
+
+    const container = formContainerRef.current;
+    if (!container) return;
+
+    const timeout = window.setTimeout(() => {
+      const hasRenderedForm =
+        container.dataset.loaded ||
+        container.querySelector('[data-hsfc-id="Renderer"]') ||
+        container.querySelector("iframe") ||
+        container.children.length > 0;
+
+      if (!hasRenderedForm) {
+        console.error(
+          "[HubspotGate] HubSpot form did not render. Check that FORM_ID is a valid HubSpot form ID.",
+          { portalId: PORTAL_ID, formId: FORM_ID },
+        );
+        setLoadError(true);
+      }
+    }, FORM_RENDER_TIMEOUT_MS);
+
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [isOpen, scriptLoaded, loadError]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -223,7 +253,8 @@ export default function HubspotGate({
                 )}
                 {loadError && (
                   <div className="absolute inset-0 flex items-center justify-center text-body-small text-heat-200 text-center px-16">
-                    Kunne ikke hente formularen. Tjek din forbindelse og prøv igen.
+                    Formularen kunne ikke indlæses. Tjek at HubSpot-formularens
+                    ID er korrekt, og prøv igen.
                   </div>
                 )}
               </div>
