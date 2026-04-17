@@ -286,12 +286,17 @@ export default function ControlPanel({
         description: check.details || checks.find(c => c.id === check.id)?.description,
       }));
       setChecks(mappedChecks);
-      // Seed the combined grid with the basic 8 + the tease placeholders.
-      // Skip tease tiles when AI will start immediately: either via internal
-      // access (autoStartAI) or because the user already unlocked (canAccessAI).
-      // Adding tease tiles in those cases causes duplicates when the real tiles arrive.
-      const skipTease = analysisData.autoStartAI || canAccessAI;
-      setCombinedChecks([...mappedChecks, ...(skipTease ? [] : AI_TEASE_CHECKS)]);
+      // Seed the combined grid:
+      // - internal access / autoStartAI: loading tiles are added separately below
+      // - already unlocked (canAccessAI): show loading tiles immediately so the
+      //   user sees the analysis is running rather than an empty grid
+      // - not unlocked: show tease tiles with lock overlay
+      const aiSeed = analysisData.autoStartAI
+        ? []
+        : canAccessAI
+          ? AI_LOADING_CHECKS
+          : AI_TEASE_CHECKS;
+      setCombinedChecks([...mappedChecks, ...aiSeed]);
       setAiInsights([]);
       setEnhancedScore(0);
       setOverallScore(analysisData.overallScore || 0);
