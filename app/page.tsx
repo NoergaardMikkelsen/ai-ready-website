@@ -94,21 +94,21 @@ function StyleGuidePage() {
         body: JSON.stringify({ url: processedUrl }),
       });
       
-      // When internal access is enabled, kick off AI analysis in parallel
-      // with the basic analysis so results arrive faster and no gate is shown.
-      const aiAnalysisPromise = internalAccess
-        ? fetch('/api/ai-analysis', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: processedUrl }),
-          })
-        : null;
-
-      // Wait for basic analysis
+      // Wait for basic analysis first so we have htmlContent available
       const response = await basicAnalysisPromise;
       const data = await response.json();
 
       if (data.success) {
+        // When internal access is enabled, kick off AI analysis now that we
+        // have the actual HTML content from the basic analysis.
+        const aiAnalysisPromise = internalAccess
+          ? fetch('/api/ai-analysis', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ url: processedUrl, htmlContent: data.htmlContent }),
+            })
+          : null;
+
         setAnalysisData({
           ...data,
           aiAnalysisPromise,
