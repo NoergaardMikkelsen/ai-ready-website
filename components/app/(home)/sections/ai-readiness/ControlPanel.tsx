@@ -176,6 +176,7 @@ export default function ControlPanel({
   const [viewMode, setViewMode] = useState<'grid' | 'chart' | 'bars'>('grid');
   const [hasUnlockedAI, setHasUnlockedAI] = useAtom(hasUnlockedAIAtom);
   const handledAIPromiseRef = useRef<Promise<any> | null>(null);
+  const aiAutoStartedRef = useRef(false);
   const [gateOpen, setGateOpen] = useState(false);
   const canAccessAI = hasUnlockedAI || internalAccess;
 
@@ -258,6 +259,23 @@ export default function ControlPanel({
     runAIAnalysis();
   }, [runAIAnalysis, setHasUnlockedAI]);
 
+  // Auto-run AI analysis when the user was already unlocked from a previous
+  // session. Uses a ref so it only fires once per analysis run, not on every
+  // re-render, avoiding the infinite-loop problem of putting runAIAnalysis
+  // directly in the analysisData useEffect's dependency array.
+  useEffect(() => {
+    if (!showResults || !canAccessAI || analysisData?.autoStartAI) return;
+    if (aiAutoStartedRef.current) return;
+    aiAutoStartedRef.current = true;
+    runAIAnalysis();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showResults, canAccessAI, analysisData?.autoStartAI]);
+
+  // Reset the auto-start guard whenever a new analysis begins.
+  useEffect(() => {
+    if (!showResults) aiAutoStartedRef.current = false;
+  }, [showResults]);
+
   useEffect(() => {
     if (analysisData && analysisData.checks && showResults) {
       // Use real data from API
@@ -269,20 +287,14 @@ export default function ControlPanel({
       setChecks(mappedChecks);
       // Seed the combined grid with the basic 8 + the tease placeholders
       // so the tease overlay has something to dim underneath.
-      // Skip tease tiles when AI analysis will start immediately (internal
-      // access or user already unlocked in a previous session).
-      const skipTease = analysisData.autoStartAI || canAccessAI;
-      setCombinedChecks([...mappedChecks, ...(skipTease ? [] : AI_TEASE_CHECKS)]);
+      // When autoStartAI is true we skip the tease tiles — loading tiles
+      // are added below via the staggered animation, so seeding tease
+      // tiles here would cause duplicate ai-loading-* keys.
+      setCombinedChecks([...mappedChecks, ...(analysisData.autoStartAI ? [] : AI_TEASE_CHECKS)]);
       setAiInsights([]);
       setEnhancedScore(0);
       setOverallScore(analysisData.overallScore || 0);
       setCurrentCheckIndex(-1);
-
-      // If user already unlocked AI in a previous session, run immediately
-      // without requiring them to go through the gate again.
-      if (canAccessAI && !analysisData.autoStartAI) {
-        runAIAnalysis();
-      }
 
       // If AI analysis should auto-start via internal access, handle the promise.
       // Guard with a ref so StrictMode double-invocation doesn't attach two
@@ -367,7 +379,7 @@ export default function ControlPanel({
 
       return () => clearInterval(checkInterval);
     }
-  }, [isAnalyzing, showResults, analysisData, canAccessAI, runAIAnalysis]);
+  }, [isAnalyzing, showResults, analysisData]);
 
   useEffect(() => {
     if (currentCheckIndex >= 0 && currentCheckIndex < checks.length && isAnalyzing) {
