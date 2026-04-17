@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import FirecrawlApp from '@mendable/firecrawl-js';
+import { writeFile } from 'node:fs/promises';
 
 const firecrawl = new FirecrawlApp({
   apiKey: process.env.FIRECRAWL_API_KEY!
@@ -483,6 +484,8 @@ export async function POST(request: NextRequest) {
     try {
       scrapeResult = await firecrawl.scrape(url, {
         formats: ['html'],
+        maxAge: 0,
+        onlyMainContent: false,
       });
       console.log(`[AI-READY] Step 1/4: Firecrawl scrape completed in ${Date.now() - scrapeStartTime}ms`);
     } catch (scrapeError) {
@@ -498,6 +501,19 @@ export async function POST(request: NextRequest) {
       console.error('No HTML content found in response');
       return NextResponse.json({ error: 'Kunne ikke hente indhold fra hjemmesiden' }, { status: 500 });
     }
+
+    // Temporary debug logging to compare Firecrawl's HTML against live source.
+    const semanticTags = ['<article', '<nav', '<main', '<section', '<header', '<footer', '<aside'];
+    const semanticTagPresence = Object.fromEntries(
+      semanticTags.map(tag => [tag, html.includes(tag)])
+    );
+    const debugFilePath = `/tmp/firecrawl-scrape-${Date.now()}-html.html`;
+    await writeFile(debugFilePath, html, 'utf8');
+    console.log('[AI-READY][DEBUG] Firecrawl HTML length:', html.length);
+    console.log('[AI-READY][DEBUG] Firecrawl metadata:', metadata);
+    console.log('[AI-READY][DEBUG] Semantic tag presence:', semanticTagPresence);
+    console.log('[AI-READY][DEBUG] Full Firecrawl HTML written to:', debugFilePath);
+    console.log('[AI-READY][DEBUG] Firecrawl HTML preview start:\n', html.substring(0, 3000));
     
     console.log('[AI-READY] Step 2/4: Analyzing HTML content...');
     const htmlStartTime = Date.now();

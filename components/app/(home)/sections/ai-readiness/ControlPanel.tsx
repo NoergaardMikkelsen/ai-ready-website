@@ -232,6 +232,13 @@ export default function ControlPanel({
           const aiScores = data.insights.map((i: any) => i.score || 0);
           const avgAiScore = aiScores.reduce((a: number, b: number) => a + b, 0) / aiScores.length;
           const combinedScore = Math.round((overallScore * 0.6) + (avgAiScore * 0.4));
+          console.log('[AI-ENHANCED][DEBUG] manual run', {
+            overallScoreState: overallScore,
+            analysisDataOverallScore: analysisData?.overallScore,
+            aiScores,
+            avgAiScore,
+            combinedScore,
+          });
           setEnhancedScore(combinedScore);
         }
       }
@@ -350,6 +357,13 @@ export default function ControlPanel({
                   const aiScores = data.insights.map((i: any) => i.score || 0);
                   const avgAiScore = aiScores.reduce((a: number, b: number) => a + b, 0) / aiScores.length;
                   const combinedScore = Math.round((overallScore * 0.6) + (avgAiScore * 0.4));
+                  console.log('[AI-ENHANCED][DEBUG] auto-start run', {
+                    overallScoreState: overallScore,
+                    analysisDataOverallScore: analysisData?.overallScore,
+                    aiScores,
+                    avgAiScore,
+                    combinedScore,
+                  });
                   setEnhancedScore(combinedScore);
                 }
               }
