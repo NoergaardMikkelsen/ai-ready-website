@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import { Metadata, Viewport } from "next";
 import { GeistMono } from "geist/font/mono";
 import { Roboto_Mono } from "next/font/google";
 import Script from "next/script";
@@ -11,6 +11,12 @@ const robotoMono = Roboto_Mono({
   weight: ["400", "500"],
   variable: "--font-roboto-mono",
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
 
 export const metadata: Metadata = {
   title: "Er din hjemmeside klar til AI?",
